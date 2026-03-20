@@ -1,8 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+using System.IO;
 using System.Net.Sockets;
 using System.Text;
+using System.Text.Json;
 using System.Threading.Tasks;
 
 namespace MeseumClient.Services
@@ -11,7 +11,10 @@ namespace MeseumClient.Services
     {
         private readonly int _tcpPort = 9001;
 
-        public async Task<string> SendRequestAsync(string serverIp, string message)
+        /// <summary>
+        /// Отправляет JSON-запрос на сервер и возвращает JSON-ответ как строку.
+        /// </summary>
+        public async Task<string> SendRequestAsync(string serverIp, object request)
         {
             try
             {
@@ -19,16 +22,22 @@ namespace MeseumClient.Services
                 await client.ConnectAsync(serverIp, _tcpPort);
 
                 using NetworkStream stream = client.GetStream();
-                byte[] data = Encoding.UTF8.GetBytes(message);
-                await stream.WriteAsync(data, 0, data.Length);
+                using StreamWriter writer = new StreamWriter(stream, Encoding.UTF8) { AutoFlush = true };
+                using StreamReader reader = new StreamReader(stream, Encoding.UTF8);
 
-                byte[] buffer = new byte[4096];
-                int bytesRead = await stream.ReadAsync(buffer, 0, buffer.Length);
-                return Encoding.UTF8.GetString(buffer, 0, bytesRead);
+                // Сериализация объекта запроса в JSON
+                string json = JsonSerializer.Serialize(request);
+
+                // Отправка запроса на сервер
+                await writer.WriteLineAsync(json);
+
+                // Чтение ответа (одна строка JSON)
+                string response = await reader.ReadLineAsync();
+                return response ?? "";
             }
             catch (Exception ex)
             {
-                return $"Ошибка: {ex.Message}";
+                return $"ERROR: {ex.Message}";
             }
         }
     }

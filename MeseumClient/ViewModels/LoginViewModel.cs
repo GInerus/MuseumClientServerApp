@@ -15,61 +15,37 @@ namespace MeseumClient.ViewModels
         {
             _sessionService = sessionService ?? throw new ArgumentNullException(nameof(sessionService));
 
-            UserTypes = new ObservableCollection<string> { "guest", "admin" };
-
-            // Инициализация полей для подавления CS8618
-            _selectedUserType = string.Empty;
-            _password = string.Empty;
-            _statusMessage = string.Empty;
-
-            SelectedUserType = "guest"; // Это вызовет Setter и обновит IsPasswordFieldVisible
-
+            SelectedUserType = "guest"; // сразу инициализируем
             LoginCommand = new RelayCommand(async () => await LoginAsync());
             TogglePasswordVisibilityCommand = new RelayCommand(TogglePasswordVisibility);
         }
 
-        public ObservableCollection<string> UserTypes { get; }
+        // Инициализация коллекции прямо в объявлении
+        public ObservableCollection<string> UserTypes { get; } = new() { "guest", "admin" };
 
-        private string _selectedUserType;
+        private string _selectedUserType = string.Empty;
         public string SelectedUserType
         {
             get => _selectedUserType;
             set
             {
-                if (_selectedUserType != value)
-                {
-                    _selectedUserType = value ?? string.Empty;
-                    OnPropertyChanged();
+                _selectedUserType = value ?? string.Empty;
+                OnPropertyChanged();
 
-                    // Обновляем видимость поля пароля при смене типа пользователя
-                    IsPasswordFieldVisible = value == "admin";
-
-                    // Очищаем пароль при смене пользователя
-                    if (!IsPasswordFieldVisible)
-                    {
-                        Password = string.Empty;
-                    }
-
-                    // Сбрасываем состояние видимости пароля
-                    IsPasswordVisible = false;
-                }
+                IsPasswordFieldVisible = value == "admin";
+                if (!IsPasswordFieldVisible) Password = string.Empty;
+                IsPasswordVisible = false;
             }
         }
 
         private string _password = string.Empty;
-        private string _tempPassword = string.Empty;
-
         public string Password
         {
             get => _password;
             set
             {
-                if (_password != value)
-                {
-                    _password = value ?? string.Empty;
-                    _tempPassword = _password; // Синхронизируем с временным полем
-                    OnPropertyChanged();
-                }
+                _password = value ?? string.Empty;
+                OnPropertyChanged();
             }
         }
 
@@ -79,39 +55,11 @@ namespace MeseumClient.ViewModels
             get => _isPasswordVisible;
             set
             {
-                if (_isPasswordVisible != value)
-                {
-                    _isPasswordVisible = value;
-
-                    // При переключении видимости копируем значение из временного поля
-                    if (_isPasswordVisible)
-                    {
-                        // Переключаемся на TextBox - копируем пароль
-                        Password = _tempPassword;
-                    }
-                    else
-                    {
-                        // Переключаемся на PasswordBox - сохраняем в временное поле
-                        _tempPassword = Password;
-                    }
-
-                    OnPropertyChanged();
-                }
-            }
-        }
-
-        private string _statusMessage;
-        public string StatusMessage
-        {
-            get => _statusMessage;
-            set
-            {
-                _statusMessage = value ?? string.Empty;
+                _isPasswordVisible = value;
                 OnPropertyChanged();
             }
         }
 
-        // Свойство для управления видимостью поля пароля (показывать/скрывать полностью)
         private bool _isPasswordFieldVisible;
         public bool IsPasswordFieldVisible
         {
@@ -123,13 +71,21 @@ namespace MeseumClient.ViewModels
             }
         }
 
+        private string _statusMessage = string.Empty;
+        public string StatusMessage
+        {
+            get => _statusMessage;
+            set
+            {
+                _statusMessage = value ?? string.Empty;
+                OnPropertyChanged();
+            }
+        }
+
         public ICommand LoginCommand { get; }
         public ICommand TogglePasswordVisibilityCommand { get; }
 
-        private void TogglePasswordVisibility()
-        {
-            IsPasswordVisible = !IsPasswordVisible;
-        }
+        private void TogglePasswordVisibility() => IsPasswordVisible = !IsPasswordVisible;
 
         private async Task LoginAsync()
         {
@@ -138,7 +94,7 @@ namespace MeseumClient.ViewModels
             bool serverFound = await _sessionService.DiscoverServerAsync();
             if (!serverFound)
             {
-                StatusMessage = "Нет соединения с сервером. Попробуйте снова.";
+                StatusMessage = "Сервер не найден. Попробуйте снова.";
                 return;
             }
 
@@ -152,14 +108,9 @@ namespace MeseumClient.ViewModels
             }
 
             StatusMessage = string.Empty;
-            OnLogin();
+            LoginSucceeded?.Invoke(SelectedUserType);
         }
 
         public event Action<string?>? LoginSucceeded;
-
-        private void OnLogin()
-        {
-            LoginSucceeded?.Invoke(SelectedUserType);
-        }
     }
 }

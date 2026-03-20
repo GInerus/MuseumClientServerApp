@@ -1,10 +1,10 @@
 ﻿using MuseumServer.Data;
+using MuseumServer.Models;
 using MuseumServer.Services;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Text.Json;
-
 
 namespace MuseumServer.Network
 {
@@ -19,141 +19,178 @@ namespace MuseumServer.Network
             this.sessionService = sessionService;
         }
 
-        public void Start()
+        public async Task Start()
         {
-            TcpListener listener = new TcpListener(IPAddress.Any, port);
+            var listener = new TcpListener(IPAddress.Any, port);
             listener.Start();
+
             Console.WriteLine($"TCP сервер запущен на порту {port}");
 
             while (true)
             {
-                var client = listener.AcceptTcpClient();
-                ThreadPool.QueueUserWorkItem(HandleClient, client);
+                var client = await listener.AcceptTcpClientAsync();
+                _ = HandleClientAsync(client); // fire & forget
             }
         }
 
-        private void HandleClient(object? clientObj)
+        private async Task HandleClientAsync(TcpClient client)
         {
-            var client = clientObj as TcpClient;
-            if (client == null) return;
-
-            using var stream = client.GetStream();
-            byte[] buffer = new byte[4096]; // увеличенный буфер для JSON
-            int bytesRead = stream.Read(buffer, 0, buffer.Length);
-            string request = Encoding.UTF8.GetString(buffer, 0, bytesRead);
-            Console.WriteLine($"Получен запрос: {request}");
-
-            string[] parts = request.Split('|');
-            string action = parts[0];
-            string response = "";
-            string token = parts.Length > 1 ? parts[1] : null;
-            Console.WriteLine($"Action: {action}, Token: {(token ?? "NULL")}");
-
-            switch (action)
+            try
             {
-                case "REGISTER_SESSION":
-                    string userType = parts.Length > 1 ? parts[1] : "guest";
-                    string password = parts.Length > 2 ? parts[2] : "";
+                using var stream = client.GetStream();
+                using var reader = new StreamReader(stream, Encoding.UTF8);
+                using var writer = new StreamWriter(stream, Encoding.UTF8) { AutoFlush = true };
 
-                    if (userType == "admin" && password != "qwerty")
-                    {
-                        response = "ADMIN_AUTH_FAIL";
-                    }
-                    else
-                    {
-                        // Создаём сессию и возвращаем токен
-                        string newToken = sessionService.CreateSession(userType);
-                        response = newToken;
-                        Console.WriteLine($"Создана сессия: {newToken} для {userType}");
-                    }
-                    break;
+                string requestJson = await reader.ReadLineAsync();
 
-                case "GET_DEPARTMENTS":
-                    if (!string.IsNullOrEmpty(token) && sessionService.ValidateSession(token))
-                    {
-                        using var db = new MuseumContext();
-                        var departments = db.Departments
-                            .Select(d => new {
-                                d.DepartmentId,
-                                d.Name,
-                                d.Description
-                            })
-                            .ToList();
+                if (string.IsNullOrEmpty(requestJson))
+                    return;
 
-                        var options = new JsonSerializerOptions
-                        {
-                            WriteIndented = true,
-                            Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping
-                        };
+                Console.WriteLine($"JSON запрос: {requestJson}");
 
-                        response = JsonSerializer.Serialize(departments, options);
-                    }
-                    else
-                        response = "INVALID_SESSION";
-                    break;
+                var request = JsonSerializer.Deserialize<Request>(requestJson);
+                if (request == null || string.IsNullOrEmpty(request.Action))
+                {
+                    await SendError(writer, "INVALID_REQUEST");
+                    return;
+                }
 
-                case "GET_EXHIBITS":
-                    if (!string.IsNullOrEmpty(token) && sessionService.ValidateSession(token) && parts.Length > 2)
-                    {
-                        int deptId = int.Parse(parts[2]);
-                        using var db = new MuseumContext();
-                        var exhibits = db.Exhibits
-                            .Where(e => e.DepartmentId == deptId)
-                            .Select(e => new {
-                                e.ExhibitId,
-                                e.Name,
-                                e.Description,
-                                e.ImagePath
-                            })
-                            .ToList();
+                switch (request.Action)
+                {
+                    case "REGISTER_SESSION":
+                        await HandleRegister(request, writer);
+                        break;
 
-                        var options = new JsonSerializerOptions
-                        {
-                            WriteIndented = true,
-                            Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping
-                        };
+                    case "GET_DEPARTMENTS":
+                        await HandleDepartments(request, writer);
+                        break;
 
-                        response = JsonSerializer.Serialize(exhibits, options);
-                    }
-                    else
-                        response = "INVALID_SESSION";
-                    break;
+                    case "GET_EXHIBITS":
+                        await HandleExhibits(request, writer);
+                        break;
 
-                case "GET_EXHIBIT":
-                    if (!string.IsNullOrEmpty(token) && sessionService.ValidateSession(token) && parts.Length > 2)
-                    {
-                        int exId = int.Parse(parts[2]);
-                        using var db = new MuseumContext();
-                        var exhibit = db.Exhibits
-                            .Where(e => e.ExhibitId == exId)
-                            .Select(e => new {
-                                e.ExhibitId,
-                                e.Name,
-                                e.Description,
-                                e.ImagePath
-                            })
-                            .FirstOrDefault();
+                    case "GET_EXHIBIT":
+                        await HandleExhibit(request, writer);
+                        break;
 
-                        var options = new JsonSerializerOptions
-                        {
-                            WriteIndented = true,
-                            Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping
-                        };
+                    default:
+                        await SendError(writer, "UNKNOWN_ACTION");
+                        break;
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Ошибка: {ex.Message}");
+            }
+            finally
+            {
+                client.Close();
+            }
+        }
 
-                        response = exhibit != null ? JsonSerializer.Serialize(exhibit, options) : "{}";
-                    }
-                    else
-                        response = "INVALID_SESSION";
-                    break;
+        // ===== HANDLERS =====
 
-                default:
-                    response = "UNKNOWN_ACTION";
-                    break;
+        private async Task HandleRegister(Request request, StreamWriter writer)
+        {
+            string userType = request.Data?.GetProperty("userType").GetString() ?? "guest";
+            string password = request.Data?.GetProperty("password").GetString() ?? "";
+
+            if (userType == "admin" && password != "qwerty")
+            {
+                await SendError(writer, "ADMIN_AUTH_FAIL");
+                return;
             }
 
-            byte[] respBytes = Encoding.UTF8.GetBytes(response);
-            stream.Write(respBytes, 0, respBytes.Length);
-            client.Close();
+            string token = sessionService.CreateSession(userType);
+            await SendOk(writer, new { token });
+            Console.WriteLine($"Создана сессия: {token} для {userType}");
+        }
+
+        private async Task HandleDepartments(Request request, StreamWriter writer)
+        {
+            if (!Validate(request.Token))
+            {
+                await SendError(writer, "INVALID_SESSION");
+                return;
+            }
+
+            using var db = new MuseumContext();
+            var departments = db.Departments
+                .Select(d => new { d.DepartmentId, d.Name, d.Description })
+                .ToList();
+
+            await SendOk(writer, departments);
+        }
+
+        private async Task HandleExhibits(Request request, StreamWriter writer)
+        {
+            if (!Validate(request.Token))
+            {
+                await SendError(writer, "INVALID_SESSION");
+                return;
+            }
+
+            if (!request.Data.HasValue ||
+                !request.Data.Value.TryGetProperty("departmentId", out var deptProp) ||
+                !deptProp.TryGetInt32(out int deptId))
+            {
+                await SendError(writer, "INVALID_DATA");
+                return;
+            }
+
+            using var db = new MuseumContext();
+            var exhibits = db.Exhibits
+                .Where(e => e.DepartmentId == deptId)
+                .Select(e => new { e.ExhibitId, e.Name, e.Description, e.ImagePath })
+                .ToList();
+
+            await SendOk(writer, exhibits);
+        }
+
+        private async Task HandleExhibit(Request request, StreamWriter writer)
+        {
+            if (!Validate(request.Token))
+            {
+                await SendError(writer, "INVALID_SESSION");
+                return;
+            }
+
+            if (!request.Data.HasValue ||
+                !request.Data.Value.TryGetProperty("exhibitId", out var exProp) ||
+                !exProp.TryGetInt32(out int exId))
+            {
+                await SendError(writer, "INVALID_DATA");
+                return;
+            }
+
+            using var db = new MuseumContext();
+            var exhibit = db.Exhibits
+                .Where(e => e.ExhibitId == exId)
+                .Select(e => new { e.ExhibitId, e.Name, e.Description, e.ImagePath })
+                .FirstOrDefault();
+
+            await SendOk(writer, exhibit);
+        }
+
+        // ===== HELPERS =====
+
+        private bool Validate(string token)
+        {
+            return !string.IsNullOrEmpty(token) && sessionService.ValidateSession(token);
+        }
+
+        private async Task SendOk(StreamWriter writer, object data)
+        {
+            var response = new Response { Status = "ok", Data = data };
+            string json = JsonSerializer.Serialize(response);
+            await writer.WriteLineAsync(json);
+        }
+
+        private async Task SendError(StreamWriter writer, string message)
+        {
+            var response = new Response { Status = "error", Message = message };
+            string json = JsonSerializer.Serialize(response);
+            await writer.WriteLineAsync(json);
         }
     }
 }

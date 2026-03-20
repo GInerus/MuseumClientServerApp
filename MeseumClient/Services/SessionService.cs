@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.Text.Json;
 using System.Threading.Tasks;
 
 namespace MeseumClient.Services
@@ -20,36 +17,78 @@ namespace MeseumClient.Services
             _tcp = tcp;
         }
 
+        // Поиск сервера в сети
         public async Task<bool> DiscoverServerAsync()
         {
             ServerIp = await _discovery.DiscoverServerAsync();
             return ServerIp != null;
         }
 
+        // Регистрация сессии (guest или admin)
         public async Task<bool> RegisterSessionAsync(string userType, string password = "")
         {
             if (ServerIp == null) return false;
 
-            string msg = userType == "admin"
-                ? $"REGISTER_SESSION|admin|{password}"
-                : $"REGISTER_SESSION|guest";
+            // Формируем объект запроса с обязательными полями action и data
+            var request = new
+            {
+                action = "REGISTER_SESSION",
+                token = (string?)null,
+                data = new
+                {
+                    userType,
+                    password
+                }
+            };
 
-            string resp = await _tcp.SendRequestAsync(ServerIp, msg);
-            if (resp == "ADMIN_AUTH_FAIL") return false;
+            string resp = await _tcp.SendRequestAsync(ServerIp, request);
 
-            Token = resp;
-            return true;
+            try
+            {
+                var response = JsonSerializer.Deserialize<ServerResponse>(resp);
+                if (response == null || response.Status != "ok") return false;
+
+                Token = response.Data?.GetProperty("token").GetString();
+                return Token != null;
+            }
+            catch
+            {
+                return false;
+            }
         }
 
-        public async Task<string> SendCommandAsync(string command, string? id = null)
+        // Общие команды к серверу
+        public async Task<ServerResponse?> SendCommandAsync(string action, object? data = null)
         {
-            if (ServerIp == null || Token == null) return "Нет сессии";
+            if (ServerIp == null || Token == null)
+                return new ServerResponse { Status = "error", Message = "NO_SESSION" };
 
-            string msg = id == null
-                ? $"{command}|{Token}"
-                : $"{command}|{Token}|{id}";
+            var request = new
+            {
+                action,
+                token = Token,
+                data
+            };
 
-            return await _tcp.SendRequestAsync(ServerIp, msg);
+            string resp = await _tcp.SendRequestAsync(ServerIp, request);
+
+            try
+            {
+                var response = JsonSerializer.Deserialize<ServerResponse>(resp);
+                return response;
+            }
+            catch
+            {
+                return new ServerResponse { Status = "error", Message = "INVALID_JSON" };
+            }
+        }
+
+        // Модель для десериализации JSON-ответа
+        public class ServerResponse
+        {
+            public string Status { get; set; } = "error";
+            public JsonElement? Data { get; set; }
+            public string Message { get; set; } = "";
         }
     }
 }

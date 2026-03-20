@@ -1,13 +1,19 @@
 ﻿// Запрос
 
 using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace MuseumServer.Models
 {
     public class Request
     {
-        public string Action { get; set; } = string.Empty;
-        public string Token { get; set; } = string.Empty;
+        [JsonPropertyName("action")]
+        public string Action { get; set; }
+
+        [JsonPropertyName("token")]
+        public string Token { get; set; }
+
+        [JsonPropertyName("data")]
         public JsonElement? Data { get; set; }
     }
 }

@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Windows.Input;
 
-//
 namespace MeseumClient.Commands
 {
     public class RelayCommand : ICommand

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.IO;
 using System.Net.Sockets;
 using System.Text;
@@ -19,6 +20,7 @@ namespace MeseumClient.Services
             try
             {
                 using TcpClient client = new TcpClient();
+                Debug.WriteLine($"[DEBUG] Подключение к серверу {serverIp}:{_tcpPort}");
                 await client.ConnectAsync(serverIp, _tcpPort);
 
                 using NetworkStream stream = client.GetStream();
@@ -27,16 +29,20 @@ namespace MeseumClient.Services
 
                 // Сериализация объекта запроса в JSON
                 string json = JsonSerializer.Serialize(request);
+                Debug.WriteLine($"[DEBUG] Отправка JSON запроса: {json}");
 
                 // Отправка запроса на сервер
                 await writer.WriteLineAsync(json);
 
                 // Чтение ответа (одна строка JSON)
                 string response = await reader.ReadLineAsync();
+                Debug.WriteLine($"[DEBUG] Получен JSON ответ: {response}");
+
                 return response ?? "";
             }
             catch (Exception ex)
             {
+                Debug.WriteLine($"[ERROR] Ошибка TCP: {ex.Message}");
                 return $"ERROR: {ex.Message}";
             }
         }

@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.14.36811.4
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MuseumServer", "MuseumClientServerApp\MuseumServer.csproj", "{037FF4A1-E335-4755-B1BB-C9ABF6359731}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MuseumServer", "MuseumServer\MuseumServer.csproj", "{037FF4A1-E335-4755-B1BB-C9ABF6359731}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MeseumClient", "MeseumClient\MeseumClient.csproj", "{692B7A05-A9DA-428B-B450-DF816F99D3AD}"
 EndProject

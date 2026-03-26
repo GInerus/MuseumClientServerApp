@@ -6,13 +6,13 @@ namespace MuseumServer.Services
 {
     public class SessionService
     {
-        private readonly MuseumContext _db;
+        private readonly IDbContextFactory<MuseumContext> _dbFactory;
         private readonly string _adminPassword;
         private readonly TimeSpan _sessionLifetime = TimeSpan.FromMinutes(10);
 
-        public SessionService(MuseumContext db)
+        public SessionService(IDbContextFactory<MuseumContext> dbFactory)
         {
-            _db = db;
+            _dbFactory = dbFactory;
 
             var path = Path.Combine(AppContext.BaseDirectory, "Config", "password.txt");
             if (!File.Exists(path))
@@ -24,24 +24,26 @@ namespace MuseumServer.Services
         public string CreateSession(string userType)
         {
             var token = Guid.NewGuid().ToString();
-            _db.Sessions.Add(new Session
+            using var db = _dbFactory.CreateDbContext();
+            db.Sessions.Add(new Session
             {
                 Token = token,
                 UserType = userType,
                 CreatedAt = DateTime.UtcNow,
                 LastAccess = DateTime.UtcNow
             });
-            _db.SaveChanges();
+            db.SaveChanges();
             return token;
         }
 
         public bool ValidateSession(string token)
         {
-            var session = _db.Sessions.FirstOrDefault(s => s.Token == token);
+            using var db = _dbFactory.CreateDbContext();
+            var session = db.Sessions.FirstOrDefault(s => s.Token == token);
             if (session != null)
             {
                 session.LastAccess = DateTime.UtcNow;
-                _db.SaveChanges();
+                db.SaveChanges();
                 return true;
             }
             return false;
@@ -51,12 +53,13 @@ namespace MuseumServer.Services
 
         public void CleanupOldSessions()
         {
+            using var db = _dbFactory.CreateDbContext();
             var cutoff = DateTime.UtcNow - _sessionLifetime;
-            var oldSessions = _db.Sessions.Where(s => s.LastAccess < cutoff).ToList();
+            var oldSessions = db.Sessions.Where(s => s.LastAccess < cutoff).ToList();
             if (oldSessions.Count > 0)
             {
-                _db.Sessions.RemoveRange(oldSessions);
-                _db.SaveChanges();
+                db.Sessions.RemoveRange(oldSessions);
+                db.SaveChanges();
                 Console.WriteLine($"Удалено сессий: {oldSessions.Count}");
             }
         }

@@ -1,9 +1,7 @@
-﻿using Microsoft.AspNetCore.Identity.Data;
-using Microsoft.AspNetCore.Mvc;
-using MuseumServer.Models;
+﻿using Microsoft.AspNetCore.Mvc;
 using MuseumServer.Services;
 
-namespace MuseumServer.Controllers
+namespace MuseumServe.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
@@ -17,13 +15,31 @@ namespace MuseumServer.Controllers
         }
 
         [HttpPost("register")]
-        public IActionResult Register([FromBody] RegisterRequest req)
+        public IActionResult Register([FromBody] SessionRequest request)
         {
-            if (req.UserType == "admin" && !_sessionService.ValidateAdminPassword(req.Password))
-                return BadRequest(new Response<object>("error", null, "ADMIN_AUTH_FAIL"));
+            if (request.UserType == "admin" && !_sessionService.ValidateAdminPassword(request.Password))
+            {
+                return Unauthorized(new { status = "error", message = "ADMIN_AUTH_FAIL" });
+            }
 
-            var token = _sessionService.CreateSession(req.UserType);
-            return Ok(new Response<object>("ok", new { token }));
+            string token = _sessionService.CreateSession(request.UserType);
+            return Ok(new { status = "ok", token });
         }
+
+        [HttpGet("validate/{token}")]
+        public IActionResult Validate(string token)
+        {
+            bool valid = _sessionService.ValidateSession(token);
+            if (!valid)
+                return Unauthorized(new { status = "error", message = "INVALID_SESSION" });
+
+            return Ok(new { status = "ok" });
+        }
+    }
+
+    public class SessionRequest
+    {
+        public string UserType { get; set; } = "guest";
+        public string Password { get; set; } = "";
     }
 }

@@ -1,5 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using MuseumServerApi.Models;
+using MuseumServer.Models;
 
 namespace MuseumServer.Data
 {

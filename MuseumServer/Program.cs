@@ -1,5 +1,6 @@
-
+using MuseumServer.Data;
 using MuseumServer.Services;
+using Microsoft.EntityFrameworkCore;
 
 namespace MuseumServer
 {
@@ -8,6 +9,10 @@ namespace MuseumServer
         public static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
+
+            // DbContext
+            builder.Services.AddDbContext<MuseumContext>(options =>
+                options.UseSqlServer(builder.Configuration.GetConnectionString("MuseumDb")));
 
             // Add services
             builder.Services.AddSingleton<SessionService>();

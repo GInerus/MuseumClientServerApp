@@ -7,35 +7,22 @@ namespace MeseumClient.Services
 {
     public class SessionService
     {
-        private readonly NetworkDiscoveryService _discovery;
         private readonly TcpClientService _tcp;
 
         public string? ServerIp { get; private set; }
         public string? Token { get; private set; }
 
-        public SessionService(NetworkDiscoveryService discovery, TcpClientService tcp)
+        public SessionService(TcpClientService tcp)
         {
-            _discovery = discovery;
             _tcp = tcp;
+            ServerIp = tcp != null ? "localhost" : null; // можно брать из конфигурации
         }
 
-        // Поиск сервера в сети
-        public async Task<bool> DiscoverServerAsync()
-        {
-            Debug.WriteLine("[DEBUG] Поиск сервера в сети...");
-            ServerIp = await _discovery.DiscoverServerAsync();
-            Debug.WriteLine(ServerIp != null
-                ? $"[DEBUG] Сервер найден: {ServerIp}"
-                : "[DEBUG] Сервер не найден");
-            return ServerIp != null;
-        }
-
-        // Регистрация сессии (guest или admin)
         public async Task<bool> RegisterSessionAsync(string userType, string password = "")
         {
             if (ServerIp == null)
             {
-                Debug.WriteLine("[ERROR] Сервер не найден. Регистрация сессии невозможна.");
+                Debug.WriteLine("[ERROR] Сервер не задан.");
                 return false;
             }
 
@@ -43,38 +30,22 @@ namespace MeseumClient.Services
             {
                 action = "REGISTER_SESSION",
                 token = (string?)null,
-                data = new
-                {
-                    userType,
-                    password
-                }
+                data = new { userType, password }
             };
 
-            Debug.WriteLine($"[DEBUG] Отправка запроса на регистрацию сессии: userType={userType}, password='{password}'");
-            string resp = await _tcp.SendRequestAsync(ServerIp, request);
+            string resp = await _tcp.SendRequestAsync(request);
 
             try
             {
                 var response = JsonSerializer.Deserialize<ServerResponse>(resp);
-                if (response == null)
+                if (response?.Status?.ToLower() != "ok")
                 {
-                    Debug.WriteLine("[ERROR] Ответ сервера пустой или некорректный JSON");
+                    Debug.WriteLine($"[ERROR] Сервер вернул ошибку: {response?.Message ?? "(no message)"}");
                     return false;
                 }
 
-                // Проверяем только Status
-                if (!string.Equals(response.Status, "ok", StringComparison.OrdinalIgnoreCase))
-                {
-                    string msg = string.IsNullOrEmpty(response.Message) ? "(no message)" : response.Message;
-                    Debug.WriteLine($"[ERROR] Сервер вернул ошибку: {msg}");
-                    return false;
-                }
-
-                // Получаем токен
                 Token = response.Data?.GetProperty("token").GetString();
-                Debug.WriteLine(Token != null
-                    ? $"[DEBUG] Сессия создана. Токен: {Token}"
-                    : "[ERROR] Токен не получен");
+                Debug.WriteLine(Token != null ? $"[DEBUG] Токен получен: {Token}" : "[ERROR] Токен не получен");
                 return Token != null;
             }
             catch (Exception ex)
@@ -84,43 +55,23 @@ namespace MeseumClient.Services
             }
         }
 
-        // Общие команды к серверу
         public async Task<ServerResponse?> SendCommandAsync(string action, object? data = null)
         {
             if (ServerIp == null || Token == null)
             {
-                Debug.WriteLine("[ERROR] Сессия не инициализирована. Команда не отправлена.");
+                Debug.WriteLine("[ERROR] Сессия не инициализирована.");
                 return new ServerResponse { Status = "error", Message = "NO_SESSION" };
             }
 
-            var request = new
-            {
-                action,
-                token = Token,
-                data
-            };
-
-            Debug.WriteLine($"[DEBUG] Отправка команды '{action}' с данными: {JsonSerializer.Serialize(data)}");
-            string resp = await _tcp.SendRequestAsync(ServerIp, request);
+            var request = new { action, token = Token, data };
+            string resp = await _tcp.SendRequestAsync(request);
 
             try
             {
-                var response = JsonSerializer.Deserialize<ServerResponse>(resp);
-                if (response != null)
-                {
-                    string msg = string.IsNullOrEmpty(response.Message) ? "(no message)" : response.Message;
-                    Debug.WriteLine($"[DEBUG] Ответ сервера: Status={response.Status}, Message={msg}");
-                }
-                else
-                {
-                    Debug.WriteLine("[ERROR] Некорректный ответ сервера");
-                }
-
-                return response;
+                return JsonSerializer.Deserialize<ServerResponse>(resp);
             }
-            catch (Exception ex)
+            catch
             {
-                Debug.WriteLine($"[ERROR] Ошибка парсинга JSON ответа: {ex.Message}");
                 return new ServerResponse { Status = "error", Message = "INVALID_JSON" };
             }
         }

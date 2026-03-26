@@ -1,25 +1,36 @@
-﻿using System;
-using System.Threading;
-using MuseumServer.Network;
-using MuseumServer.Services;
 
-class Program
+namespace MuseumServer
 {
-    static async Task Main()
+    public class Program
     {
-        SessionService sessionService = new SessionService();
-
-        UdpServer udpServer = new UdpServer(9000);
-        udpServer.Start();
-
-        TcpServer tcpServer = new TcpServer(9001, sessionService);
-        _ = tcpServer.Start(); // async
-
-        while (true)
+        public static void Main(string[] args)
         {
-            await Task.Delay(TimeSpan.FromMinutes(120));
-            sessionService.CleanupOldSessions(TimeSpan.FromMinutes(10));
-            Console.WriteLine("Старые сессии очищены");
+            var builder = WebApplication.CreateBuilder(args);
+
+            // Add services to the container.
+
+            builder.Services.AddControllers();
+            // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+            builder.Services.AddEndpointsApiExplorer();
+            builder.Services.AddSwaggerGen();
+
+            var app = builder.Build();
+
+            // Configure the HTTP request pipeline.
+            if (app.Environment.IsDevelopment())
+            {
+                app.UseSwagger();
+                app.UseSwaggerUI();
+            }
+
+            app.UseHttpsRedirection();
+
+            app.UseAuthorization();
+
+
+            app.MapControllers();
+
+            app.Run();
         }
     }
 }

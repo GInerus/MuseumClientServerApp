@@ -7,6 +7,13 @@ using MeseumClient.Services;
 
 namespace MeseumClient.ViewModels
 {
+    // Модель для выпадающего списка
+    public class UserTypeOption
+    {
+        public string Value { get; set; } = string.Empty;   // для логики и сервера
+        public string Display { get; set; } = string.Empty; // для UI
+    }
+
     public class LoginViewModel : BaseViewModel
     {
         private readonly SessionService _sessionService;
@@ -15,24 +22,34 @@ namespace MeseumClient.ViewModels
         {
             _sessionService = sessionService ?? throw new ArgumentNullException(nameof(sessionService));
 
-            SelectedUserType = "guest"; // сразу инициализируем
+            // Инициализация команд
             LoginCommand = new RelayCommand(async () => await LoginAsync());
             TogglePasswordVisibilityCommand = new RelayCommand(TogglePasswordVisibility);
+
+            // Инициализация списка пользователей
+            UserTypes = new ObservableCollection<UserTypeOption>
+            {
+                new UserTypeOption { Value = "guest", Display = "Гость" },
+                new UserTypeOption { Value = "admin", Display = "Администратор" }
+            };
+
+            // Выбор по умолчанию
+            SelectedUserType = UserTypes[0];
         }
 
-        // Инициализация коллекции прямо в объявлении
-        public ObservableCollection<string> UserTypes { get; } = new() { "guest", "admin" };
+        // Список для ComboBox
+        public ObservableCollection<UserTypeOption> UserTypes { get; }
 
-        private string _selectedUserType = string.Empty;
-        public string SelectedUserType
+        private UserTypeOption? _selectedUserType;
+        public UserTypeOption? SelectedUserType
         {
             get => _selectedUserType;
             set
             {
-                _selectedUserType = value ?? string.Empty;
+                _selectedUserType = value;
                 OnPropertyChanged();
 
-                IsPasswordFieldVisible = value == "admin";
+                IsPasswordFieldVisible = value?.Value == "admin";
                 if (!IsPasswordFieldVisible) Password = string.Empty;
                 IsPasswordVisible = false;
             }
@@ -89,18 +106,14 @@ namespace MeseumClient.ViewModels
 
         private async Task LoginAsync()
         {
-            StatusMessage = "Проверка соединения с сервером...";
-
-            bool serverFound = await _sessionService.DiscoverServerAsync();
-            if (!serverFound)
-            {
-                StatusMessage = "Сервер не найден. Попробуйте снова.";
-                return;
-            }
-
             StatusMessage = "Авторизация...";
 
-            bool loggedIn = await _sessionService.RegisterSessionAsync(SelectedUserType, Password);
+            // Отправляем серверу английское значение
+            bool loggedIn = await _sessionService.RegisterSessionAsync(
+                SelectedUserType?.Value ?? "guest",
+                Password
+            );
+
             if (!loggedIn)
             {
                 StatusMessage = "Ошибка авторизации. Проверьте пароль.";
@@ -108,7 +121,7 @@ namespace MeseumClient.ViewModels
             }
 
             StatusMessage = string.Empty;
-            LoginSucceeded?.Invoke(SelectedUserType);
+            LoginSucceeded?.Invoke(SelectedUserType?.Value);
         }
 
         public event Action<string?>? LoginSucceeded;

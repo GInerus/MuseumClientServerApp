@@ -10,39 +10,44 @@ namespace MeseumClient.Services
 {
     public class TcpClientService
     {
-        private readonly int _tcpPort = 9001;
+        private readonly string _serverIp;
+        private readonly int _tcpPort;
+        private readonly int _connectTimeoutMs;
 
-        /// <summary>
-        /// Отправляет JSON-запрос на сервер и возвращает JSON-ответ как строку.
-        /// </summary>
-        public async Task<string> SendRequestAsync(string serverIp, object request)
+        //public TcpClientService(string serverIp = "192.168.0.150", int tcpPort = 9001, int connectTimeoutMs = 3000)
+        public TcpClientService(string serverIp = "127.0.0.1", int tcpPort = 9001, int connectTimeoutMs = 3000)
+
+        {
+            _serverIp = serverIp;
+            _tcpPort = tcpPort;
+            _connectTimeoutMs = connectTimeoutMs;
+        }
+
+        public async Task<string> SendRequestAsync(object request)
         {
             try
             {
                 using TcpClient client = new TcpClient();
-                Debug.WriteLine($"[DEBUG] Подключение к серверу {serverIp}:{_tcpPort}");
-                await client.ConnectAsync(serverIp, _tcpPort);
+
+                var connectTask = client.ConnectAsync(_serverIp, _tcpPort);
+                if (await Task.WhenAny(connectTask, Task.Delay(_connectTimeoutMs)) != connectTask)
+                    throw new TimeoutException($"Не удалось подключиться к {_serverIp}:{_tcpPort} за {_connectTimeoutMs} мс.");
+
+                Debug.WriteLine($"[DEBUG] Подключено к серверу {_serverIp}:{_tcpPort}");
 
                 using NetworkStream stream = client.GetStream();
                 using StreamWriter writer = new StreamWriter(stream, Encoding.UTF8) { AutoFlush = true };
                 using StreamReader reader = new StreamReader(stream, Encoding.UTF8);
 
-                // Сериализация объекта запроса в JSON
                 string json = JsonSerializer.Serialize(request);
-                Debug.WriteLine($"[DEBUG] Отправка JSON запроса: {json}");
-
-                // Отправка запроса на сервер
                 await writer.WriteLineAsync(json);
 
-                // Чтение ответа (одна строка JSON)
                 string response = await reader.ReadLineAsync();
-                Debug.WriteLine($"[DEBUG] Получен JSON ответ: {response}");
-
                 return response ?? "";
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"[ERROR] Ошибка TCP: {ex.Message}");
+                Debug.WriteLine($"[ERROR] TCP ошибка: {ex.Message}");
                 return $"ERROR: {ex.Message}";
             }
         }

@@ -12,19 +12,17 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
-using MeseumClient.ViewModels;
 
 namespace MeseumClient.Views
 {
     /// <summary>
-    /// Логика взаимодействия для MainView.xaml
+    /// Логика взаимодействия для ExhibitsView.xaml
     /// </summary>
-    public partial class MainView : UserControl
+    public partial class ExhibitsView : UserControl
     {
-        public MainView(string userType)
+        public ExhibitsView()
         {
             InitializeComponent();
-            DataContext = new MainViewModel(userType);
         }
     }
 }

@@ -14,8 +14,7 @@ namespace MeseumClient.Views
             // Создаём сервисы
             var discovery = new NetworkDiscoveryService();
             var tcp = new TcpClientService();
-            _sessionService = new SessionService(discovery, tcp);
-
+            _sessionService = new SessionService(tcp);
             // Вставляем LoginView в MainGrid
             var loginView = new LoginView(_sessionService);
             MainGrid.Children.Add(loginView);

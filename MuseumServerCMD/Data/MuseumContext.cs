@@ -13,6 +13,8 @@ namespace MuseumServer.Data
         {
             // Используем локальный SQL Server
             optionsBuilder.UseSqlServer(@"Data Source=GERMAN-PC;Initial Catalog=MuseumDB;Integrated Security=True;Trust Server Certificate=True");
+            //optionsBuilder.UseSqlServer(@"Data Source=192.168.0.150;Initial Catalog=MuseumDB;User ID=sa;Password=schoolpas68G#;Trust Server Certificate=True");
+
         }
     }
 }

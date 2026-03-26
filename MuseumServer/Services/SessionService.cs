@@ -8,7 +8,7 @@ namespace MuseumServer.Services
     {
         private readonly IDbContextFactory<MuseumContext> _dbFactory;
         private readonly string _adminPassword;
-        private readonly TimeSpan _sessionLifetime = TimeSpan.FromMinutes(10);
+        private readonly TimeSpan _sessionLifetime = TimeSpan.FromHours(12);
 
         public SessionService(IDbContextFactory<MuseumContext> dbFactory)
         {
@@ -50,6 +50,18 @@ namespace MuseumServer.Services
         }
 
         public bool ValidateAdminPassword(string password) => password == _adminPassword;
+
+        public Session? GetSession(string token)
+        {
+            using var db = _dbFactory.CreateDbContext();
+            var session = db.Sessions.FirstOrDefault(s => s.Token == token);
+            if (session != null)
+            {
+                session.LastAccess = DateTime.UtcNow; // обновляем последнее обращение
+                db.SaveChanges();
+            }
+            return session;
+        }
 
         public void CleanupOldSessions()
         {

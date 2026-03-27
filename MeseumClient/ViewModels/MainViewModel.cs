@@ -61,7 +61,7 @@ namespace MeseumClient.ViewModels
             var aboutTab = new TabItemViewModel
             {
                 Header = "О музее",
-                Content = new AboutMuseumView()
+                Content = new AboutMuseumView(_sessionService.Token ?? "")
             };
             Tabs.Add(aboutTab);
 

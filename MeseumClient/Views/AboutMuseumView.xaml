@@ -15,11 +15,41 @@
                        Foreground="#1E90FF" 
                        Margin="0,0,0,20"/>
 
-            <!-- Картинка музея -->
-            <Image Source="pack://application:,,,/Resources/logo.jpg" 
-                   Height="200" 
-                   Stretch="Uniform" 
-                   Margin="0,0,0,20"/>
+            <UniformGrid Columns="4" Margin="0,0,0,20">
+
+                <!-- Статьи -->
+                <Border Background="#F0F8FF" CornerRadius="10" Margin="5" Padding="15">
+                    <StackPanel>
+                        <TextBlock Text="Статьи" FontWeight="Bold" FontSize="16"/>
+                        <TextBlock Text="{Binding ArticlesCount}" FontSize="24" Foreground="#1E90FF"/>
+                    </StackPanel>
+                </Border>
+
+                <!-- Отделы -->
+                <Border Background="#F5FFF0" CornerRadius="10" Margin="5" Padding="15">
+                    <StackPanel>
+                        <TextBlock Text="Отделы" FontWeight="Bold" FontSize="16"/>
+                        <TextBlock Text="{Binding DepartmentsCount}" FontSize="24" Foreground="#2E8B57"/>
+                    </StackPanel>
+                </Border>
+
+                <!-- Экспонаты -->
+                <Border Background="#FFF8F0" CornerRadius="10" Margin="5" Padding="15">
+                    <StackPanel>
+                        <TextBlock Text="Экспонаты" FontWeight="Bold" FontSize="16"/>
+                        <TextBlock Text="{Binding ExhibitsCount}" FontSize="24" Foreground="#FF8C00"/>
+                    </StackPanel>
+                </Border>
+
+                <!-- Медиа -->
+                <Border Background="#FFF0F5" CornerRadius="10" Margin="5" Padding="15">
+                    <StackPanel>
+                        <TextBlock Text="Медиа" FontWeight="Bold" FontSize="16"/>
+                        <TextBlock Text="{Binding MediaCount}" FontSize="24" Foreground="#C71585"/>
+                    </StackPanel>
+                </Border>
+
+            </UniformGrid>
 
             <!-- Основной текст -->
             <TextBlock TextWrapping="Wrap" FontSize="16" Foreground="#000000">

@@ -10,6 +10,7 @@ namespace MuseumServer.Data
         public DbSet<Session> Sessions { get; set; } = null!;
         public DbSet<Exhibit> Exhibits { get; set; }
         public DbSet<Department> Departments { get; set; }
+        public DbSet<Document> Documents { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

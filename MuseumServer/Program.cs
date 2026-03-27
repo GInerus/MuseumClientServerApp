@@ -18,6 +18,7 @@ namespace MuseumServer
             builder.Services.AddSingleton<SessionService>();
             builder.Services.AddHostedService<SessionCleanupService>();
             builder.Services.AddScoped<ExhibitService>();
+            builder.Services.AddScoped<DocumentService>();
 
             builder.Services.AddControllers();
             builder.Services.AddEndpointsApiExplorer();

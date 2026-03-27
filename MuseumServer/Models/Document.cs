@@ -18,6 +18,7 @@ namespace MuseumServer.Models
 
         // Связь с экспонатом (может быть null)
         public int? ExhibitId { get; set; }
+
         public Exhibit? Exhibit { get; set; }
 
         // Связь с отделом (обязательна)

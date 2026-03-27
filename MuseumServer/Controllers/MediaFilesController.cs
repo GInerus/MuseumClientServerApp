@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using MuseumServer.Models;
 using MuseumServer.Services;
+using MuseumServer.DTOs;
 using MuseumServer.Attributes;
 
 namespace MuseumServer.Controllers
@@ -38,18 +39,19 @@ namespace MuseumServer.Controllers
 
         // POST: api/MediaFiles
         [HttpPost]
-        public async Task<IActionResult> Create([FromHeader] string token, [FromBody] MediaFile request)
+        public async Task<IActionResult> Create([FromHeader] string token, [FromBody] CreateMediaFileRequest request)
         {
-            // Проверяем тип медиа
-            if (request.MediaType != "image" && request.MediaType != "video")
+            // Определяем тип медиа по расширению файла
+            string? mediaType = GetMediaTypeFromPath(request.FilePath);
+            if (mediaType == null)
             {
-                return BadRequest(new { status = "error", message = "Invalid media type" });
+                return BadRequest(new { status = "error", message = "Unsupported media type" });
             }
 
             var media = new MediaFile
             {
                 FilePath = request.FilePath,
-                MediaType = request.MediaType,
+                MediaType = mediaType,
                 Description = request.Description,
                 DepartmentId = request.DepartmentId
             };
@@ -67,6 +69,25 @@ namespace MuseumServer.Controllers
                 return NotFound(new { status = "error", message = "Media file not found" });
 
             return Ok(new { status = "ok" });
+        }
+
+        // Вспомогательный метод для определения типа медиа
+        private string? GetMediaTypeFromPath(string path)
+        {
+            var ext = Path.GetExtension(path)?.ToLowerInvariant().TrimStart('.');
+            if (ext == null) return null;
+
+            return ext switch
+            {
+                "jpg" => "image",
+                "jpeg" => "image",
+                "png" => "image",
+                "gif" => "image",
+                "mp4" => "video",
+                "mov" => "video",
+                "avi" => "video",
+                _ => null
+            };
         }
     }
 }

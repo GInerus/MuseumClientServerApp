@@ -1,10 +1,8 @@
 ﻿using System.ComponentModel;
 using System.Net.Http;
-using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
-using System.Windows;
 
 namespace MeseumClient.ViewModels
 {
@@ -53,31 +51,22 @@ namespace MeseumClient.ViewModels
             }
         }
 
-        // Устанавливаем токен позднее
+        // Позднее устанавливаем токен
         public void SetTokenAndLoad(string token)
         {
             _token = token;
-
-            MessageBox.Show($"[SetTokenAndLoad] Токен установлен: {_token}");
-
             _ = LoadDataAsync();
         }
 
         private async Task LoadDataAsync()
         {
             if (string.IsNullOrEmpty(_token))
-            {
-                MessageBox.Show("[LoadDataAsync] Токен пустой, загрузка не выполняется.");
                 return;
-            }
-
-            MessageBox.Show("[LoadDataAsync] Начинаем загрузку данных...");
 
             try
             {
                 using var client = new HttpClient();
 
-                // 🔹 Исправлено: токен в заголовке 'token'
                 client.DefaultRequestHeaders.Remove("token");
                 client.DefaultRequestHeaders.Add("token", _token);
 
@@ -85,20 +74,10 @@ namespace MeseumClient.ViewModels
                 DepartmentsCount = await GetCountAsync(client, "Departments");
                 ExhibitsCount = await GetCountAsync(client, "Exhibit");
                 MediaCount = await GetCountAsync(client, "MediaFiles");
-
-                MessageBox.Show($"[LoadDataAsync] Данные загружены:\n" +
-                                $"Articles: {ArticlesCount}\n" +
-                                $"Departments: {DepartmentsCount}\n" +
-                                $"Exhibits: {ExhibitsCount}\n" +
-                                $"Media: {MediaCount}");
             }
-            catch (HttpRequestException ex)
+            catch
             {
-                MessageBox.Show($"[LoadDataAsync] Ошибка HTTP: {ex.Message}");
-            }
-            catch (System.Exception ex)
-            {
-                MessageBox.Show($"[LoadDataAsync] Общая ошибка: {ex.Message}");
+                // Ошибки можно логировать через ILogger или оставить пустым
             }
         }
 
@@ -110,21 +89,13 @@ namespace MeseumClient.ViewModels
                     $"https://localhost:7093/api/{endpoint}/count",
                     new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true });
 
-                if (response != null)
-                {
-                    MessageBox.Show($"[GetCountAsync] {endpoint}: status={response.status}, count={response.count}");
-                    if (response.status == "ok") return response.count;
-                }
-                else
-                {
-                    MessageBox.Show($"[GetCountAsync] {endpoint}: response пустой");
-                }
+                if (response != null && response.status == "ok")
+                    return response.count;
 
                 return 0;
             }
-            catch (System.Exception ex)
+            catch
             {
-                MessageBox.Show($"[GetCountAsync] {endpoint} ошибка: {ex.Message}");
                 return 0;
             }
         }

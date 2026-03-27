@@ -2,11 +2,14 @@
 using MuseumServer.DTOs;
 using MuseumServer.Models;
 using MuseumServer.Services;
+using MuseumServer.Attributes;
 
 namespace MuseumServer.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [SessionAuthorize]
+
     public class ExhibitController : ControllerBase
     {
         private readonly ExhibitService _service;
@@ -18,7 +21,7 @@ namespace MuseumServer.Controllers
 
         // GET: api/exhibit
         [HttpGet]
-        public async Task<IActionResult> GetAll()
+        public async Task<IActionResult> GetAll([FromHeader] string token)
         {
             var exhibits = await _service.GetAllExhibitsAsync();
             return Ok(new { status = "ok", data = exhibits });
@@ -26,7 +29,7 @@ namespace MuseumServer.Controllers
 
         // GET: api/exhibit/{id}
         [HttpGet("{id}")]
-        public async Task<IActionResult> Get(int id)
+        public async Task<IActionResult> Get([FromHeader] string token, int id)
         {
             var exhibit = await _service.GetExhibitAsync(id);
             if (exhibit == null)
@@ -37,7 +40,7 @@ namespace MuseumServer.Controllers
 
         // GET: api/exhibit/count
         [HttpGet("count")]
-        public async Task<IActionResult> GetCount()
+        public async Task<IActionResult> GetCount([FromHeader] string token)
         {
             var count = await _service.GetExhibitCountAsync();
             return Ok(new { status = "ok", count });
@@ -45,7 +48,7 @@ namespace MuseumServer.Controllers
 
         // POST: api/exhibit
         [HttpPost]
-        public async Task<IActionResult> Create([FromBody] CreateExhibitRequest request)
+        public async Task<IActionResult> Create([FromHeader] string token, [FromBody] CreateExhibitRequest request)
         {
             var exhibit = new Exhibit
             {
@@ -63,7 +66,7 @@ namespace MuseumServer.Controllers
 
         // PUT: api/exhibit/{id}
         [HttpPut("{id}")]
-        public async Task<IActionResult> Update(int id, [FromBody] UpdateExhibitRequest request)
+        public async Task<IActionResult> Update([FromHeader] string token, int id, [FromBody] UpdateExhibitRequest request)
         {
             var exhibit = new Exhibit
             {
@@ -84,7 +87,7 @@ namespace MuseumServer.Controllers
 
         // DELETE: api/exhibit/{id}
         [HttpDelete("{id}")]
-        public async Task<IActionResult> Delete(int id)
+        public async Task<IActionResult> Delete([FromHeader] string token, int id)
         {
             var deleted = await _service.DeleteExhibitAsync(id);
             if (!deleted)

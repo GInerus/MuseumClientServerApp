@@ -12,16 +12,6 @@ namespace MeseumClient.Views
             InitializeComponent();
             var vm = new LoginViewModel(sessionService);
             this.DataContext = vm;
-
-            // Подписка на успешный вход
-            vm.LoginSucceeded += UserLoggedIn;
-        }
-
-        // Метод вызывается при успешном логине
-        private void UserLoggedIn(string userType)
-        {
-            // Сообщаем MainWindow
-            (Window.GetWindow(this) as MainWindow)?.ShowMainView(userType);
         }
     }
 }

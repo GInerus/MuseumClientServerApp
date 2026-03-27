@@ -1,128 +1,75 @@
 ﻿using System;
-using System.Diagnostics;
+using System.IO;
+using System.Net.Http;
+using System.Net.Http.Json;
 using System.Text.Json;
+using System.Threading.Tasks;
 using MeseumClient.Models;
 
 namespace MeseumClient.Services
 {
     public class SessionService
     {
-        private readonly NetworkDiscoveryService _discovery;
-        private readonly TcpClientService _tcp;
+        private readonly HttpClient _httpClient;
+        private readonly string _baseUrl;
 
-        public string? ServerIp { get; private set; }
         public string? Token { get; private set; }
 
-        public SessionService(NetworkDiscoveryService discovery, TcpClientService tcp)
+        public SessionService()
         {
-            _discovery = discovery;
-            _tcp = tcp;
-        }
+            // читаем конфиг
+            if (!File.Exists("appsettings.json"))
+                throw new Exception("Файл конфигурации appsettings.json не найден");
 
-        // Поиск сервера в сети
-        public async Task<bool> DiscoverServerAsync()
-        {
-            Debug.WriteLine("[DEBUG] Поиск сервера в сети...");
-            ServerIp = await _discovery.DiscoverServerAsync();
-            Debug.WriteLine(ServerIp != null
-                ? $"[DEBUG] Сервер найден: {ServerIp}"
-                : "[DEBUG] Сервер не найден");
-            return ServerIp != null;
-        }
+            var jsonText = File.ReadAllText("appsettings.json");
 
-        // Регистрация сессии (guest или admin)
-        public async Task<bool> RegisterSessionAsync(string userType, string password = "")
-        {
-            if (ServerIp == null)
-            {
-                Debug.WriteLine("[ERROR] Сервер не найден. Регистрация сессии невозможна.");
-                return false;
-            }
-
-            var request = new
-            {
-                action = "REGISTER_SESSION",
-                token = (string?)null,
-                data = new
-                {
-                    userType,
-                    password
-                }
-            };
-
-            Debug.WriteLine($"[DEBUG] Отправка запроса на регистрацию сессии: userType={userType}, password='{password}'");
-            string resp = await _tcp.SendRequestAsync(ServerIp, request);
-
+            JsonElement configRoot;
             try
             {
-                var response = JsonSerializer.Deserialize<ServerResponse>(resp);
-                if (response == null)
-                {
-                    Debug.WriteLine("[ERROR] Ответ сервера пустой или некорректный JSON");
-                    return false;
-                }
-
-                // Проверяем только Status
-                if (!string.Equals(response.Status, "ok", StringComparison.OrdinalIgnoreCase))
-                {
-                    string msg = string.IsNullOrEmpty(response.Message) ? "(no message)" : response.Message;
-                    Debug.WriteLine($"[ERROR] Сервер вернул ошибку: {msg}");
-                    return false;
-                }
-
-                // Получаем токен
-                Token = response.Data?.GetProperty("token").GetString();
-                Debug.WriteLine(Token != null
-                    ? $"[DEBUG] Сессия создана. Токен: {Token}"
-                    : "[ERROR] Токен не получен");
-                return Token != null;
+                configRoot = JsonSerializer.Deserialize<JsonElement>(jsonText);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                Debug.WriteLine($"[ERROR] Ошибка парсинга JSON: {ex.Message}");
-                return false;
+                throw new Exception("Не удалось прочитать конфигурацию");
             }
+
+            var serverElement = configRoot.GetProperty("Server");
+            var serverIp = serverElement.GetProperty("Ip").GetString()
+                ?? throw new Exception("IP сервера не задан в конфиге");
+            var serverPort = serverElement.GetProperty("Port").GetInt32();
+
+            _baseUrl = $"http://{serverIp}:{serverPort}/api/Session";
+            _httpClient = new HttpClient();
         }
 
-        // Общие команды к серверу
-        public async Task<ServerResponse?> SendCommandAsync(string action, object? data = null)
+        public async Task<bool> RegisterSessionAsync(string userType, string password)
         {
-            if (ServerIp == null || Token == null)
+            var request = new { userType, password };
+
+            var response = await _httpClient.PostAsJsonAsync($"{_baseUrl}/register", request);
+            if (!response.IsSuccessStatusCode) return false;
+
+            var result = await response.Content.ReadFromJsonAsync<SessionRegisterResponse>();
+            if (result != null && !string.IsNullOrEmpty(result.Token))
             {
-                Debug.WriteLine("[ERROR] Сессия не инициализирована. Команда не отправлена.");
-                return new ServerResponse { Status = "error", Message = "NO_SESSION" };
+                Token = result.Token;
+                return true;
             }
 
-            var request = new
-            {
-                action,
-                token = Token,
-                data
-            };
-
-            Debug.WriteLine($"[DEBUG] Отправка команды '{action}' с данными: {JsonSerializer.Serialize(data)}");
-            string resp = await _tcp.SendRequestAsync(ServerIp, request);
-
-            try
-            {
-                var response = JsonSerializer.Deserialize<ServerResponse>(resp);
-                if (response != null)
-                {
-                    string msg = string.IsNullOrEmpty(response.Message) ? "(no message)" : response.Message;
-                    Debug.WriteLine($"[DEBUG] Ответ сервера: Status={response.Status}, Message={msg}");
-                }
-                else
-                {
-                    Debug.WriteLine("[ERROR] Некорректный ответ сервера");
-                }
-
-                return response;
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine($"[ERROR] Ошибка парсинга JSON ответа: {ex.Message}");
-                return new ServerResponse { Status = "error", Message = "INVALID_JSON" };
-            }
+            return false;
         }
+
+        public async Task<bool> ValidateTokenAsync()
+        {
+            if (string.IsNullOrEmpty(Token)) return false;
+
+            var response = await _httpClient.GetAsync($"{_baseUrl}/validate/{Token}");
+            return response.IsSuccessStatusCode;
+        }
+    }
+
+    public class SessionRegisterResponse
+    {
+        public string Token { get; set; } = "";
     }
 }

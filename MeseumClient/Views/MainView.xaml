@@ -1,11 +1,88 @@
 ﻿<UserControl x:Class="MeseumClient.Views.MainView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             Height="350" Width="400">
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
 
     <Grid>
-        <TextBlock Text="{Binding WelcomeMessage}" 
-                   FontSize="20" FontWeight="Bold"
-                   HorizontalAlignment="Center" VerticalAlignment="Center"/>
+        <!-- Определяем строки: 60 пикселей для шапки, остальное для контента -->
+        <Grid.RowDefinitions>
+            <RowDefinition Height="60"/>
+            <!-- Шапка -->
+            <RowDefinition Height="*"/>
+            <!-- Контент -->
+        </Grid.RowDefinitions>
+
+        <!-- Шапка -->
+        <Grid Background="#1E90FF" Grid.Row="0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <!-- Лого и название слева -->
+                <ColumnDefinition Width="Auto"/>
+                <!-- Роль справа -->
+            </Grid.ColumnDefinitions>
+
+            <!-- Логотип и название -->
+            <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="10,0">
+                <!-- Круглый логотип -->
+                <Ellipse Width="40" Height="40">
+                    <Ellipse.Fill>
+                        <ImageBrush ImageSource="pack://Application:,,,/Resources/logo.png" Stretch="UniformToFill"/>
+                    </Ellipse.Fill>
+                </Ellipse>
+                <TextBlock Text="Память времён"
+                           Foreground="White"
+                           FontSize="20"
+                           VerticalAlignment="Center"
+                           Margin="10,0,0,0"/>
+            </StackPanel>
+
+            <!-- Роль пользователя -->
+            <TextBlock Text="{Binding UserRole}" 
+                       Foreground="White"
+                       FontSize="16"
+                       VerticalAlignment="Center"
+                       HorizontalAlignment="Right"
+                       Margin="0,0,10,0"
+                       Grid.Column="1"/>
+        </Grid>
+
+        <!-- Основной контент -->
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="220"/>
+                <!-- Sidebar -->
+                <ColumnDefinition Width="*"/>
+                <!-- Контент -->
+            </Grid.ColumnDefinitions>
+
+            <!-- Sidebar -->
+            <StackPanel Background="#2C2C2C">
+
+                <Button Content="Статьи"
+                        Command="{Binding ShowExhibitsCommand}"
+                        Margin="10"/>
+                <Button Content="Экспонаты"
+                        Command="{Binding ShowExhibitsCommand}"
+                        Margin="10"/>
+                <Button Content="Отделы"
+                        Command="{Binding ShowExhibitsCommand}"
+                        Margin="10"/>
+                <Button Content="Млюстрации"
+                        Command="{Binding ShowExhibitsCommand}"
+                        Margin="10"/>
+                <Button Content="Видео"
+                        Command="{Binding ShowExhibitsCommand}"
+                        Margin="10"/>
+                <Button Content="О музее"
+                        Command="{Binding ShowExhibitsCommand}"
+                        Margin="10"/>
+                <Button Content="Выход"
+                        Command="{Binding ShowExhibitsCommand}"
+                        Margin="10"/>
+            </StackPanel>
+
+            <!-- Контент -->
+            <ContentControl Grid.Column="1"
+                            Content="{Binding CurrentView}"/>
+        </Grid>
     </Grid>
 </UserControl>

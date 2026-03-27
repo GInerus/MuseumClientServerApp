@@ -1,25 +1,40 @@
-﻿using System;
-using System.Threading;
-using MuseumServer.Network;
+using MuseumServer.Data;
 using MuseumServer.Services;
+using Microsoft.EntityFrameworkCore;
 
-class Program
+namespace MuseumServer
 {
-    static async Task Main()
+    public class Program
     {
-        SessionService sessionService = new SessionService();
-
-        UdpServer udpServer = new UdpServer(9000);
-        udpServer.Start();
-
-        TcpServer tcpServer = new TcpServer(9001, sessionService);
-        _ = tcpServer.Start(); // async
-
-        while (true)
+        public static void Main(string[] args)
         {
-            await Task.Delay(TimeSpan.FromMinutes(120));
-            sessionService.CleanupOldSessions(TimeSpan.FromMinutes(10));
-            Console.WriteLine("Старые сессии очищены");
+            var builder = WebApplication.CreateBuilder(args);
+
+            // DbContext
+            builder.Services.AddDbContextFactory<MuseumContext>(options =>
+                options.UseSqlServer(builder.Configuration.GetConnectionString("MuseumDb")));
+
+            // Add services
+            builder.Services.AddSingleton<SessionService>();
+            builder.Services.AddHostedService<SessionCleanupService>();
+            builder.Services.AddScoped<ExhibitService>();
+            builder.Services.AddScoped<DocumentService>();
+            builder.Services.AddScoped<MediaFileService>();
+            builder.Services.AddScoped<DepartmentService>();
+
+            builder.Services.AddControllers();
+            builder.Services.AddEndpointsApiExplorer();
+            builder.Services.AddSwaggerGen();
+
+
+            var app = builder.Build();
+
+            app.UseSwagger();
+            app.UseSwaggerUI();
+
+            app.MapControllers();
+
+            app.Run();
         }
     }
 }

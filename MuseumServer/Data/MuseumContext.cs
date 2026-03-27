@@ -1,18 +1,31 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using System.Collections.Generic;
+using MuseumServer.Models;
 
 namespace MuseumServer.Data
 {
-    public class MuseumContext : Microsoft.EntityFrameworkCore.DbContext
+    public class MuseumContext : DbContext
     {
-        public DbSet<Session> Sessions { get; set; }
-        public DbSet<Department> Departments { get; set; }
-        public DbSet<Exhibit> Exhibits { get; set; }
+        public MuseumContext(DbContextOptions<MuseumContext> options) : base(options) { }
 
-        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        public DbSet<Session> Sessions { get; set; } = null!;
+        public DbSet<Exhibit> Exhibits { get; set; }
+        public DbSet<Department> Departments { get; set; }
+        public DbSet<Document> Documents { get; set; }
+        public DbSet<MediaFile> MediaFiles { get; set; }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            // Используем локальный SQL Server
-            optionsBuilder.UseSqlServer(@"Data Source=GERMAN-PC;Initial Catalog=MuseumDB;Integrated Security=True;Trust Server Certificate=True");
+            base.OnModelCreating(modelBuilder);
+
+            // Конфигурация Session
+            modelBuilder.Entity<Session>(entity =>
+            {
+                entity.HasKey(e => e.SessionId);
+                entity.Property(e => e.Token).IsRequired();
+                entity.Property(e => e.UserType).IsRequired();
+                entity.Property(e => e.CreatedAt).IsRequired();
+                entity.Property(e => e.LastAccess).IsRequired();
+            });
         }
     }
 }

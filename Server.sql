@@ -43,6 +43,7 @@ CREATE TABLE Exhibits
     Description NVARCHAR(MAX) NULL,
     Materials NVARCHAR(300) NULL,
     IsPermanent BIT NOT NULL DEFAULT 1,
+    ImagePath NVARCHAR(500) NULL,
     DepartmentId INT NOT NULL,
 
     CONSTRAINT FK_Exhibits_Departments

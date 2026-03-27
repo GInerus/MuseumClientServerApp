@@ -17,10 +17,12 @@ namespace MuseumServer
             // Add services
             builder.Services.AddSingleton<SessionService>();
             builder.Services.AddHostedService<SessionCleanupService>();
+            builder.Services.AddScoped<ExhibitService>();
 
             builder.Services.AddControllers();
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
+
 
             var app = builder.Build();
 

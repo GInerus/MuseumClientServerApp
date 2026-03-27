@@ -7,6 +7,7 @@ using System.Net.Http.Json;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using System.Windows.Input;
+using MeseumClient.Services;
 
 namespace MeseumClient.ViewModels
 {
@@ -19,6 +20,8 @@ namespace MeseumClient.ViewModels
     public class MainViewModel : INotifyPropertyChanged
     {
         public event PropertyChangedEventHandler? PropertyChanged;
+
+        private readonly SessionService _sessionService;
 
         private string _welcomeMessage = "";
         public string WelcomeMessage
@@ -50,9 +53,11 @@ namespace MeseumClient.ViewModels
         // Команда для панели вкладок
         public ICommand SelectTabCommand { get; }
 
-        public MainViewModel(string token)
+        public MainViewModel(SessionService sessionService)
         {
-            // Сразу создаём вкладки
+            _sessionService = sessionService;
+
+            // вкладки
             var aboutTab = new TabItemViewModel
             {
                 Header = "О музее",
@@ -67,37 +72,23 @@ namespace MeseumClient.ViewModels
             };
             Tabs.Add(exhibitsTab);
 
-            // По умолчанию открыта вкладка "О музее"
             CurrentTab = aboutTab;
 
-            // Команды для сайдбара
             ShowAboutTabCommand = new RelayCommand(() => CurrentTab = aboutTab);
             ShowExhibitsTabCommand = new RelayCommand(() => CurrentTab = exhibitsTab);
 
-            // Команда для панели вкладок
-            SelectTabCommand = new RelayCommand(() => { /* через CommandParameter в XAML */ });
+            SelectTabCommand = new RelayCommand(() => { });
 
-            // Асинхронно валидируем токен и получаем роль пользователя
-            _ = InitializeAsync(token);
+            // 🔥 теперь без token
+            _ = InitializeAsync();
         }
 
-        private async Task InitializeAsync(string token)
+        private async Task InitializeAsync()
         {
             try
             {
-                using var client = new HttpClient();
-
-                var response = await client.GetFromJsonAsync<SessionValidateResponse>(
-                    $"https://localhost:7093/api/Session/validate/{token}");
-
-                if (response?.status == "ok")
-                {
-                    UserRole = response.userType;
-                }
-                else
-                {
-                    UserRole = "guest";
-                }
+                var role = await _sessionService.ValidateTokenAsync();
+                UserRole = role ?? "guest";
             }
             catch
             {
@@ -118,12 +109,6 @@ namespace MeseumClient.ViewModels
         protected void OnPropertyChanged([CallerMemberName] string? propName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propName));
-        }
-
-        private class SessionValidateResponse
-        {
-            public string status { get; set; } = "";
-            public string userType { get; set; } = "";
         }
     }
 }

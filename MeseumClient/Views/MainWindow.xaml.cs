@@ -36,7 +36,8 @@ namespace MeseumClient.Views
 
             MainGrid.Children.Clear();
 
-            var mainView = new MainView(token);
+            // Передаём сервис, а не токен
+            var mainView = new MainView(_sessionService);
             MainGrid.Children.Add(mainView);
         }
     }

@@ -1,0 +1,38 @@
+﻿<UserControl x:Class="MeseumClient.Views.AboutMuseumView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:MeseumClient.Views"
+             mc:Ignorable="d">
+
+    <ScrollViewer>
+        <StackPanel Margin="20">
+            <!-- Заголовок -->
+            <TextBlock Text="О музее" 
+                       FontSize="28" 
+                       FontWeight="Bold" 
+                       Foreground="#1E90FF" 
+                       Margin="0,0,0,20"/>
+
+            <!-- Картинка музея -->
+            <Image Source="pack://application:,,,/Resources/logo.jpg" 
+                   Height="200" 
+                   Stretch="Uniform" 
+                   Margin="0,0,0,20"/>
+
+            <!-- Основной текст -->
+            <TextBlock TextWrapping="Wrap" FontSize="16" Foreground="#000000">
+                Добро пожаловать в наш музей! 
+                Здесь вы можете познакомиться с уникальными экспонатами, узнать историю времён и окунуться в атмосферу прошлого. 
+                Музей предлагает экскурсии, выставки, образовательные программы и мультимедийные материалы для всех возрастов.
+            </TextBlock>
+
+            <!-- Дополнительная информация -->
+            <TextBlock TextWrapping="Wrap" FontSize="16" Foreground="#333333" Margin="0,10,0,0">
+                Наши отделы включают археологию, искусство, историю науки и культуры. 
+                Мы рады гостям и стремимся сделать каждый визит интересным и познавательным.
+            </TextBlock>
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

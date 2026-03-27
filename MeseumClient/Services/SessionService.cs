@@ -59,17 +59,30 @@ namespace MeseumClient.Services
             return false;
         }
 
-        public async Task<bool> ValidateTokenAsync()
+        public async Task<string?> ValidateTokenAsync()
         {
-            if (string.IsNullOrEmpty(Token)) return false;
+            if (string.IsNullOrEmpty(Token)) return null;
 
             var response = await _httpClient.GetAsync($"{_baseUrl}/validate/{Token}");
-            return response.IsSuccessStatusCode;
+            if (!response.IsSuccessStatusCode) return null;
+
+            var result = await response.Content.ReadFromJsonAsync<SessionValidateResponse>();
+
+            if (result?.status == "ok")
+                return result.userType;
+
+            return null;
         }
     }
 
     public class SessionRegisterResponse
     {
         public string Token { get; set; } = "";
+    }
+
+    public class SessionValidateResponse
+    {
+        public string status { get; set; } = "";
+        public string userType { get; set; } = "";
     }
 }

@@ -78,29 +78,30 @@ namespace MeseumClient.ViewModels
             SelectTabCommand = new RelayCommand(() => { /* через CommandParameter в XAML */ });
 
             // Асинхронно валидируем токен и получаем роль пользователя
-            _ = InitializeUserAsync(token);
+            _ = InitializeAsync(token);
         }
 
-        private async Task InitializeUserAsync(string token)
+        private async Task InitializeAsync(string token)
         {
             try
             {
                 using var client = new HttpClient();
+
                 var response = await client.GetFromJsonAsync<SessionValidateResponse>(
                     $"https://localhost:7093/api/Session/validate/{token}");
 
-                if (response?.status == "ok" && !string.IsNullOrEmpty(response.userType))
+                if (response?.status == "ok")
                 {
-                    UserRole = TranslateRole(response.userType);
+                    UserRole = response.userType;
                 }
                 else
                 {
-                    UserRole = "Гость";
+                    UserRole = "guest";
                 }
             }
             catch
             {
-                UserRole = "Гость";
+                UserRole = "guest";
             }
         }
 

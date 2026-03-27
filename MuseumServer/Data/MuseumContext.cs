@@ -11,6 +11,7 @@ namespace MuseumServer.Data
         public DbSet<Exhibit> Exhibits { get; set; }
         public DbSet<Department> Departments { get; set; }
         public DbSet<Document> Documents { get; set; }
+        public DbSet<MediaFile> MediaFiles { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

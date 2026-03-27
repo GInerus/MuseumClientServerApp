@@ -121,7 +121,7 @@ namespace MeseumClient.ViewModels
             }
 
             StatusMessage = string.Empty;
-            LoginSucceeded?.Invoke(SelectedUserType?.Value);
+            LoginSucceeded?.Invoke(_sessionService.Token);
         }
 
         public event Action<string?>? LoginSucceeded;

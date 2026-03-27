@@ -29,12 +29,14 @@ namespace MeseumClient.Views
             MainGrid.Children.Add(loginView);
         }
 
-        public void ShowMainView(string userType)
+        public void ShowMainView(string? token)
         {
-            MainGrid.Children.Clear(); // убираем LoginView
+            if (string.IsNullOrEmpty(token))
+                return;
 
-            // Создаём новый UserControl для “главной панели”
-            var mainView = new MainView(userType); // передаем admin/guest
+            MainGrid.Children.Clear();
+
+            var mainView = new MainView(token);
             MainGrid.Children.Add(mainView);
         }
     }

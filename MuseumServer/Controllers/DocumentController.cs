@@ -48,6 +48,7 @@ namespace MuseumServer.Controllers
 
         // POST: api/document
         [HttpPost]
+        [SessionAuthorize(adminOnly: true)]
         public async Task<IActionResult> Create([FromHeader] string token, [FromBody] CreateDocumentRequest request)
         {
             // Определяем тип файла по расширению
@@ -69,6 +70,7 @@ namespace MuseumServer.Controllers
 
         // DELETE: api/document/{id}
         [HttpDelete("{id}")]
+        [SessionAuthorize(adminOnly: true)]
         public async Task<IActionResult> Delete([FromHeader] string token,int id)
         {
             var deleted = await _service.DeleteDocumentAsync(id);

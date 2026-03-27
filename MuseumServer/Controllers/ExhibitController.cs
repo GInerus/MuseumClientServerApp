@@ -48,6 +48,7 @@ namespace MuseumServer.Controllers
 
         // POST: api/exhibit
         [HttpPost]
+        [SessionAuthorize(adminOnly: true)]
         public async Task<IActionResult> Create([FromHeader] string token, [FromBody] CreateExhibitRequest request)
         {
             var exhibit = new Exhibit
@@ -66,6 +67,7 @@ namespace MuseumServer.Controllers
 
         // PUT: api/exhibit/{id}
         [HttpPut("{id}")]
+        [SessionAuthorize(adminOnly: true)]
         public async Task<IActionResult> Update([FromHeader] string token, int id, [FromBody] UpdateExhibitRequest request)
         {
             var exhibit = new Exhibit
@@ -87,6 +89,7 @@ namespace MuseumServer.Controllers
 
         // DELETE: api/exhibit/{id}
         [HttpDelete("{id}")]
+        [SessionAuthorize(adminOnly: true)]
         public async Task<IActionResult> Delete([FromHeader] string token, int id)
         {
             var deleted = await _service.DeleteExhibitAsync(id);

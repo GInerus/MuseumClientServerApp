@@ -39,6 +39,7 @@ namespace MuseumServer.Controllers
 
         // POST: api/MediaFiles
         [HttpPost]
+        [SessionAuthorize(adminOnly: true)]
         public async Task<IActionResult> Create([FromHeader] string token, [FromBody] CreateMediaFileRequest request)
         {
             // Определяем тип медиа по расширению файла
@@ -62,6 +63,7 @@ namespace MuseumServer.Controllers
 
         // DELETE: api/MediaFiles/{id}
         [HttpDelete("{id}")]
+        [SessionAuthorize(adminOnly: true)]
         public async Task<IActionResult> Delete([FromHeader] string token, int id)
         {
             var deleted = await _service.DeleteAsync(id);

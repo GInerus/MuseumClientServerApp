@@ -73,6 +73,14 @@ namespace MuseumServer.Controllers
             return Ok(new { status = "ok" });
         }
 
+        // GET: api/MediaFiles/count
+        [HttpGet("count")]
+        public async Task<IActionResult> GetCount([FromHeader] string token)
+        {
+            var mediaFiles = await _service.GetAllAsync();
+            return Ok(new { status = "ok", count = mediaFiles.Count });
+        }
+
         // Вспомогательный метод для определения типа медиа
         private string? GetMediaTypeFromPath(string path)
         {

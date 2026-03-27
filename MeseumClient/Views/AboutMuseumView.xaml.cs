@@ -1,14 +1,17 @@
-﻿using System.Windows.Controls;
-using MeseumClient.ViewModels;
+﻿using MeseumClient.ViewModels;
+using System.Windows.Controls;
 
 namespace MeseumClient.Views
 {
     public partial class AboutMuseumView : UserControl
     {
-        public AboutMuseumView(string token)
+        public AboutMuseumViewModel ViewModel { get; }
+
+        public AboutMuseumView(string token = "")
         {
             InitializeComponent();
-            DataContext = new AboutMuseumViewModel(token);
+            ViewModel = new AboutMuseumViewModel(token);
+            DataContext = ViewModel;
         }
     }
 }

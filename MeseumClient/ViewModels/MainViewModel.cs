@@ -89,6 +89,12 @@ namespace MeseumClient.ViewModels
             {
                 var role = await _sessionService.ValidateTokenAsync();
                 UserRole = role ?? "guest";
+
+                // После того как токен известен, даём его AboutMuseumViewModel
+                if (Tabs[0].Content is AboutMuseumView aboutView)
+                {
+                    aboutView.ViewModel.SetTokenAndLoad(_sessionService.Token!);
+                }
             }
             catch
             {

@@ -4,6 +4,7 @@ using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
+using System.Windows;
 
 namespace MeseumClient.ViewModels
 {
@@ -12,57 +13,92 @@ namespace MeseumClient.ViewModels
         public event PropertyChangedEventHandler? PropertyChanged;
 
         private int _articlesCount;
+        private int _departmentsCount;
+        private int _exhibitsCount;
+        private int _mediaCount;
+
+        private string _token = "";
+
         public int ArticlesCount
         {
             get => _articlesCount;
             set { _articlesCount = value; OnPropertyChanged(); }
         }
 
-        private int _departmentsCount;
         public int DepartmentsCount
         {
             get => _departmentsCount;
             set { _departmentsCount = value; OnPropertyChanged(); }
         }
 
-        private int _exhibitsCount;
         public int ExhibitsCount
         {
             get => _exhibitsCount;
             set { _exhibitsCount = value; OnPropertyChanged(); }
         }
 
-        private int _mediaCount;
         public int MediaCount
         {
             get => _mediaCount;
             set { _mediaCount = value; OnPropertyChanged(); }
         }
 
-        private readonly string _token;
-
-        public AboutMuseumViewModel(string token)
+        public AboutMuseumViewModel(string token = "")
         {
             _token = token;
+
+            if (!string.IsNullOrEmpty(_token))
+            {
+                _ = LoadDataAsync();
+            }
+        }
+
+        // Устанавливаем токен позднее
+        public void SetTokenAndLoad(string token)
+        {
+            _token = token;
+
+            MessageBox.Show($"[SetTokenAndLoad] Токен установлен: {_token}");
+
             _ = LoadDataAsync();
         }
 
         private async Task LoadDataAsync()
         {
+            if (string.IsNullOrEmpty(_token))
+            {
+                MessageBox.Show("[LoadDataAsync] Токен пустой, загрузка не выполняется.");
+                return;
+            }
+
+            MessageBox.Show("[LoadDataAsync] Начинаем загрузку данных...");
+
             try
             {
                 using var client = new HttpClient();
-                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue(_token);
 
-                ArticlesCount = await GetCountAsync(client, "Articles");
+                // 🔹 Исправлено: токен в заголовке 'token'
+                client.DefaultRequestHeaders.Remove("token");
+                client.DefaultRequestHeaders.Add("token", _token);
+
+                ArticlesCount = await GetCountAsync(client, "Document");
                 DepartmentsCount = await GetCountAsync(client, "Departments");
-                ExhibitsCount = await GetCountAsync(client, "Exhibits");
-                MediaCount = await GetCountAsync(client, "Media");
+                ExhibitsCount = await GetCountAsync(client, "Exhibit");
+                MediaCount = await GetCountAsync(client, "MediaFiles");
+
+                MessageBox.Show($"[LoadDataAsync] Данные загружены:\n" +
+                                $"Articles: {ArticlesCount}\n" +
+                                $"Departments: {DepartmentsCount}\n" +
+                                $"Exhibits: {ExhibitsCount}\n" +
+                                $"Media: {MediaCount}");
             }
-            catch
+            catch (HttpRequestException ex)
             {
-                // Заглушка на случай ошибки
-                ArticlesCount = DepartmentsCount = ExhibitsCount = MediaCount = 0;
+                MessageBox.Show($"[LoadDataAsync] Ошибка HTTP: {ex.Message}");
+            }
+            catch (System.Exception ex)
+            {
+                MessageBox.Show($"[LoadDataAsync] Общая ошибка: {ex.Message}");
             }
         }
 
@@ -71,15 +107,24 @@ namespace MeseumClient.ViewModels
             try
             {
                 var response = await client.GetFromJsonAsync<CountResponse>(
-                    $"https://localhost:7093/api/{endpoint}/count");
+                    $"https://localhost:7093/api/{endpoint}/count",
+                    new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true });
 
-                if (response != null && response.status == "ok")
-                    return response.count;
+                if (response != null)
+                {
+                    MessageBox.Show($"[GetCountAsync] {endpoint}: status={response.status}, count={response.count}");
+                    if (response.status == "ok") return response.count;
+                }
+                else
+                {
+                    MessageBox.Show($"[GetCountAsync] {endpoint}: response пустой");
+                }
 
                 return 0;
             }
-            catch
+            catch (System.Exception ex)
             {
+                MessageBox.Show($"[GetCountAsync] {endpoint} ошибка: {ex.Message}");
                 return 0;
             }
         }

@@ -10,10 +10,4 @@
         // Минимальная информация об отделе
         public DepartmentInfo Department { get; set; } = new DepartmentInfo();
     }
-
-    public class DepartmentInfo
-    {
-        public int DepartmentId { get; set; }
-        public string Name { get; set; } = string.Empty;
-    }
 }

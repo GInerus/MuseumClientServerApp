@@ -3,7 +3,7 @@ using System.Text.Json.Serialization;
 
 public class Exhibit
 {
-    public int ExhibitId { get; private set; } // ← теперь нельзя задать снаружи
+    public int ExhibitId { get; set; }
     public string Name { get; set; } = string.Empty;
     public string? Description { get; set; }
     public string? Materials { get; set; }

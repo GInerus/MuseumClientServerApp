@@ -51,5 +51,8 @@ namespace MuseumServer.Services
             await _context.SaveChangesAsync();
             return true;
         }
+
+        public async Task<int> GetExhibitCountAsync() =>
+            await _context.Exhibits.CountAsync();
     }
 }

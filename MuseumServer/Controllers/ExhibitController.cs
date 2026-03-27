@@ -37,13 +37,14 @@ namespace MuseumServer.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> Update(int id, [FromBody] Exhibit exhibit)
         {
-            if (id != exhibit.ExhibitId)
-                return BadRequest(new { status = "error", message = "Id mismatch" });
+            // ставим id из URL
+            exhibit.ExhibitId = id;
 
             var updated = await _service.UpdateExhibitAsync(exhibit);
-            if (!updated) return NotFound(new { status = "error", message = "Exhibit not found" });
+            if (!updated)
+                return NotFound(new { status = "error", message = "Exhibit not found" });
 
-            return Ok(exhibit);
+            return Ok(new { status = "ok", data = exhibit });
         }
 
         [HttpDelete("{id}")]

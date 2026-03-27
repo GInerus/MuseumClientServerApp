@@ -3,9 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.14.36811.4
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MeseumClient", "MeseumClient\MeseumClient.csproj", "{692B7A05-A9DA-428B-B450-DF816F99D3AD}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MeseumClientOld", "MeseumClientOld\MeseumClientOld.csproj", "{692B7A05-A9DA-428B-B450-DF816F99D3AD}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MuseumServer", "MuseumServer\MuseumServer.csproj", "{CA7A9E62-5245-4CA4-9E41-527A8B7F3ADA}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MuseumClient", "MuseumClient\MuseumClient.csproj", "{5648A836-1AAF-4A71-BB38-C3CFBA85D752}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +23,10 @@ Global
 		{CA7A9E62-5245-4CA4-9E41-527A8B7F3ADA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CA7A9E62-5245-4CA4-9E41-527A8B7F3ADA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{CA7A9E62-5245-4CA4-9E41-527A8B7F3ADA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5648A836-1AAF-4A71-BB38-C3CFBA85D752}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5648A836-1AAF-4A71-BB38-C3CFBA85D752}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5648A836-1AAF-4A71-BB38-C3CFBA85D752}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5648A836-1AAF-4A71-BB38-C3CFBA85D752}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

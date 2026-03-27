@@ -8,10 +8,7 @@ namespace MuseumServer.Data
         public MuseumContext(DbContextOptions<MuseumContext> options) : base(options) { }
 
         public DbSet<Session> Sessions { get; set; } = null!;
-
-        // Для будущих расширений:
-        // public DbSet<Department> Departments { get; set; } 
-        // public DbSet<Exhibit> Exhibits { get; set; }
+        public DbSet<Exhibit> Exhibits { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

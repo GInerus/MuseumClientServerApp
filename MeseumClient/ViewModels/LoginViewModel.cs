@@ -7,11 +7,10 @@ using MeseumClient.Services;
 
 namespace MeseumClient.ViewModels
 {
-    // Модель для выпадающего списка
     public class UserTypeOption
     {
-        public string Value { get; set; } = string.Empty;   // для логики и сервера
-        public string Display { get; set; } = string.Empty; // для UI
+        public string Value { get; set; } = string.Empty;
+        public string Display { get; set; } = string.Empty;
     }
 
     public class LoginViewModel : BaseViewModel
@@ -22,22 +21,18 @@ namespace MeseumClient.ViewModels
         {
             _sessionService = sessionService ?? throw new ArgumentNullException(nameof(sessionService));
 
-            // Инициализация команд
             LoginCommand = new RelayCommand(async () => await LoginAsync());
             TogglePasswordVisibilityCommand = new RelayCommand(TogglePasswordVisibility);
 
-            // Инициализация списка пользователей
             UserTypes = new ObservableCollection<UserTypeOption>
             {
                 new UserTypeOption { Value = "guest", Display = "Гость" },
                 new UserTypeOption { Value = "admin", Display = "Администратор" }
             };
 
-            // Выбор по умолчанию
             SelectedUserType = UserTypes[0];
         }
 
-        // Список для ComboBox
         public ObservableCollection<UserTypeOption> UserTypes { get; }
 
         private UserTypeOption? _selectedUserType;
@@ -59,44 +54,28 @@ namespace MeseumClient.ViewModels
         public string Password
         {
             get => _password;
-            set
-            {
-                _password = value ?? string.Empty;
-                OnPropertyChanged();
-            }
+            set { _password = value ?? string.Empty; OnPropertyChanged(); }
         }
 
         private bool _isPasswordVisible;
         public bool IsPasswordVisible
         {
             get => _isPasswordVisible;
-            set
-            {
-                _isPasswordVisible = value;
-                OnPropertyChanged();
-            }
+            set { _isPasswordVisible = value; OnPropertyChanged(); }
         }
 
         private bool _isPasswordFieldVisible;
         public bool IsPasswordFieldVisible
         {
             get => _isPasswordFieldVisible;
-            set
-            {
-                _isPasswordFieldVisible = value;
-                OnPropertyChanged();
-            }
+            set { _isPasswordFieldVisible = value; OnPropertyChanged(); }
         }
 
         private string _statusMessage = string.Empty;
         public string StatusMessage
         {
             get => _statusMessage;
-            set
-            {
-                _statusMessage = value ?? string.Empty;
-                OnPropertyChanged();
-            }
+            set { _statusMessage = value ?? string.Empty; OnPropertyChanged(); }
         }
 
         public ICommand LoginCommand { get; }
@@ -108,19 +87,19 @@ namespace MeseumClient.ViewModels
         {
             StatusMessage = "Авторизация...";
 
-            // Отправляем серверу английское значение
-            bool loggedIn = await _sessionService.RegisterSessionAsync(
+            var response = await _sessionService.RegisterSessionAsync(
                 SelectedUserType?.Value ?? "guest",
                 Password
             );
 
-            if (!loggedIn)
+            if (response == null || !response.IsSuccess)
             {
                 StatusMessage = "Ошибка авторизации. Проверьте пароль.";
                 return;
             }
 
-            StatusMessage = string.Empty;
+            // Токен теперь сохраняется автоматически в SessionService
+            StatusMessage = $"Авторизация успешна! Token: {_sessionService.Token}";
             LoginSucceeded?.Invoke(_sessionService.Token);
         }
 

@@ -1,7 +1,9 @@
-﻿using System.Windows;
+﻿using System.Net.Http;
+using System.Windows;
+using MeseumClient.Config;
 using MeseumClient.Services;
-using MeseumClient.ViewModels; // для LoginViewModel
-using MeseumClient.Views;      // для LoginView
+using MeseumClient.ViewModels;
+using MeseumClient.Views;
 
 namespace MeseumClient.Views
 {
@@ -13,19 +15,23 @@ namespace MeseumClient.Views
         {
             InitializeComponent();
 
-            // Создаём SessionService (он сам берёт IP/порт из appsettings.json)
-            _sessionService = new SessionService();
+            // Загружаем конфиг через AppSettings
+            var appSettings = AppSettings.Load();
+            var serverConfig = appSettings.Server;
+
+            // Создаём HttpClient
+            var httpClient = new HttpClient();
+
+            // Создаём сервис с готовым конфигом
+            _sessionService = new SessionService(httpClient, serverConfig);
 
             // Создаём LoginView
             var loginView = new LoginView(_sessionService);
 
-            // Подписываемся на событие LoginSucceeded из ViewModel LoginView
+            // Подписываемся на событие LoginSucceeded
             if (loginView.DataContext is LoginViewModel vm)
-            {
                 vm.LoginSucceeded += ShowMainView;
-            }
 
-            // Вставляем LoginView в MainGrid
             MainGrid.Children.Add(loginView);
         }
 
@@ -35,10 +41,7 @@ namespace MeseumClient.Views
                 return;
 
             MainGrid.Children.Clear();
-
-            // Передаём сервис, а не токен
-            var mainView = new MainView(_sessionService);
-            MainGrid.Children.Add(mainView);
+            MainGrid.Children.Add(new MainView(_sessionService));
         }
     }
 }

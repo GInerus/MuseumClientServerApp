@@ -1,10 +1,8 @@
-﻿using System;
-using System.IO;
-using System.Net.Http;
+﻿using System.Net.Http;
 using System.Net.Http.Json;
-using System.Text.Json;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
-using MeseumClient.Models;
+using MeseumClient.Config;
 
 namespace MeseumClient.Services
 {
@@ -14,75 +12,84 @@ namespace MeseumClient.Services
         private readonly string _baseUrl;
 
         public string? Token { get; private set; }
+        public string? UserType { get; private set; }
 
-        public SessionService()
+        public SessionService(HttpClient httpClient, ServerConfig config)
         {
-            // читаем конфиг
-            if (!File.Exists("appsettings.json"))
-                throw new Exception("Файл конфигурации appsettings.json не найден");
+            _httpClient = httpClient;
+            _baseUrl = $"http://{config.Ip}:{config.Port}/api/Session";
+        }
 
-            var jsonText = File.ReadAllText("appsettings.json");
-
-            JsonElement configRoot;
+        // Регистрация сессии
+        public async Task<SessionRegisterResponse?> RegisterSessionAsync(string userType, string password)
+        {
             try
             {
-                configRoot = JsonSerializer.Deserialize<JsonElement>(jsonText);
+                var request = new { userType, password };
+                var response = await _httpClient.PostAsJsonAsync($"{_baseUrl}/register", request);
+                var result = await response.Content.ReadFromJsonAsync<SessionRegisterResponse>();
+
+                if (result?.IsSuccess == true)
+                {
+                    Token = result.Token;
+                    UserType = result.UserType;
+                }
+
+                return result;
             }
-            catch (Exception)
+            catch
             {
-                throw new Exception("Не удалось прочитать конфигурацию");
+                return null;
             }
-
-            var serverElement = configRoot.GetProperty("Server");
-            var serverIp = serverElement.GetProperty("Ip").GetString()
-                ?? throw new Exception("IP сервера не задан в конфиге");
-            var serverPort = serverElement.GetProperty("Port").GetInt32();
-
-            _baseUrl = $"http://{serverIp}:{serverPort}/api/Session";
-            _httpClient = new HttpClient();
         }
 
-        public async Task<bool> RegisterSessionAsync(string userType, string password)
-        {
-            var request = new { userType, password };
-
-            var response = await _httpClient.PostAsJsonAsync($"{_baseUrl}/register", request);
-            if (!response.IsSuccessStatusCode) return false;
-
-            var result = await response.Content.ReadFromJsonAsync<SessionRegisterResponse>();
-            if (result != null && !string.IsNullOrEmpty(result.Token))
-            {
-                Token = result.Token;
-                return true;
-            }
-
-            return false;
-        }
-
-        public async Task<string?> ValidateTokenAsync()
+        // Проверка токена
+        public async Task<SessionValidateResponse?> ValidateTokenAsync()
         {
             if (string.IsNullOrEmpty(Token)) return null;
 
-            var response = await _httpClient.GetAsync($"{_baseUrl}/validate/{Token}");
-            if (!response.IsSuccessStatusCode) return null;
+            try
+            {
+                var response = await _httpClient.GetAsync($"{_baseUrl}/validate/{Token}");
+                if (!response.IsSuccessStatusCode) return null;
 
-            var result = await response.Content.ReadFromJsonAsync<SessionValidateResponse>();
-
-            if (result?.status == "ok")
-                return result.userType;
-
-            return null;
+                var result = await response.Content.ReadFromJsonAsync<SessionValidateResponse>();
+                return result;
+            }
+            catch
+            {
+                return null;
+            }
         }
+
+        // Метод для ручной установки токена (если нужно)
+        public void SetToken(string token) => Token = token;
     }
 
+    // Модель для десериализации ответа регистрации
     public class SessionRegisterResponse
     {
+        [JsonPropertyName("status")]
+        public string Status { get; set; } = "";
+
+        [JsonPropertyName("token")]
         public string Token { get; set; } = "";
+
+        [JsonPropertyName("userType")]
+        public string UserType { get; set; } = "";
+
+        public bool IsSuccess => Status.Equals("ok", System.StringComparison.OrdinalIgnoreCase);
     }
 
+    // Модель для десериализации проверки токена
     public class SessionValidateResponse
     {
-        public string status { get; set; } = "";
-        public string userType { get; set; } = "";
+        [JsonPropertyName("status")]
+        public string Status { get; set; } = "";
+
+        [JsonPropertyName("userType")]
+        public string UserType { get; set; } = "";
+
+        public bool IsSuccess => Status.Equals("ok", System.StringComparison.OrdinalIgnoreCase);
     }
 }

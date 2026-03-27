@@ -21,10 +21,10 @@ namespace MeseumClient.Views
     /// </summary>
     public partial class MainView : UserControl
     {
-        public MainView(string userType)
+        public MainView(string token)
         {
             InitializeComponent();
-            DataContext = new MainViewModel(userType);
+            DataContext = new MainViewModel(token);
         }
     }
 }

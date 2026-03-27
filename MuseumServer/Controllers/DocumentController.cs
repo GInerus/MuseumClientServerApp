@@ -2,11 +2,14 @@
 using MuseumServer.Models;
 using MuseumServer.Services;
 using MuseumServer.DTOs;
+using MuseumServer.Attributes;
 
 namespace MuseumServer.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [SessionAuthorize]
+
     public class DocumentController : ControllerBase
     {
         private readonly DocumentService _service;
@@ -18,7 +21,7 @@ namespace MuseumServer.Controllers
 
         // GET: api/document
         [HttpGet]
-        public async Task<IActionResult> GetAll()
+        public async Task<IActionResult> GetAll([FromHeader] string token)
         {
             var documents = await _service.GetAllDocumentsAsync();
             return Ok(new { status = "ok", data = documents });
@@ -26,7 +29,7 @@ namespace MuseumServer.Controllers
 
         // GET: api/document/{id}
         [HttpGet("{id}")]
-        public async Task<IActionResult> Get(int id)
+        public async Task<IActionResult> Get([FromHeader] string token, int id)
         {
             var document = await _service.GetDocumentAsync(id);
             if (document == null)
@@ -37,7 +40,7 @@ namespace MuseumServer.Controllers
 
         // GET: api/document/count
         [HttpGet("count")]
-        public async Task<IActionResult> GetCount()
+        public async Task<IActionResult> GetCount([FromHeader] string token)
         {
             var count = await _service.GetDocumentCountAsync();
             return Ok(new { status = "ok", count });
@@ -45,7 +48,7 @@ namespace MuseumServer.Controllers
 
         // POST: api/document
         [HttpPost]
-        public async Task<IActionResult> Create([FromBody] CreateDocumentRequest request)
+        public async Task<IActionResult> Create([FromHeader] string token, [FromBody] CreateDocumentRequest request)
         {
             // Определяем тип файла по расширению
             string fileType = GetFileTypeFromPath(request.FilePath);
@@ -66,7 +69,7 @@ namespace MuseumServer.Controllers
 
         // DELETE: api/document/{id}
         [HttpDelete("{id}")]
-        public async Task<IActionResult> Delete(int id)
+        public async Task<IActionResult> Delete([FromHeader] string token,int id)
         {
             var deleted = await _service.DeleteDocumentAsync(id);
             if (!deleted)

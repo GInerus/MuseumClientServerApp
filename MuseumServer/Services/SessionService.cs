@@ -39,14 +39,20 @@ namespace MuseumServer.Services
         public bool ValidateSession(string token)
         {
             using var db = _dbFactory.CreateDbContext();
+
             var session = db.Sessions.FirstOrDefault(s => s.Token == token);
-            if (session != null)
-            {
-                session.LastAccess = DateTime.UtcNow;
-                db.SaveChanges();
-                return true;
-            }
-            return false;
+            if (session == null)
+                return false;
+
+            // Проверка времени
+            if (DateTime.UtcNow - session.LastAccess > _sessionLifetime)
+                return false;
+
+            // продлеваем сессию
+            session.LastAccess = DateTime.UtcNow;
+            db.SaveChanges();
+
+            return true;
         }
 
         public bool ValidateAdminPassword(string password) => password == _adminPassword;

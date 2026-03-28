@@ -40,8 +40,8 @@ namespace MuseumClient.ViewModels
                 bool success = await _authService.RegisterAsync(UserType, UserPassword);
                 if (success)
                 {
-                    _mainVM.TokenVM.SetToken(_authService.CurrentToken);
-                    _mainVM.ShowTokenView();
+                    _mainVM.ContentHubVM.SetToken(_authService.CurrentToken);
+                    _mainVM.ShowContentHubView();
                 }
                 else
                 {

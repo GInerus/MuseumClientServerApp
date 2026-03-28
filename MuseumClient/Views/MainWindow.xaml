@@ -16,8 +16,8 @@
             <views:LoginView/>
         </DataTemplate>
 
-        <DataTemplate DataType="{x:Type vm:TokenViewModel}">
-            <views:TokenView/>
+        <DataTemplate DataType="{x:Type vm:ContentHubViewModel}">
+            <views:ContentHubView/>
         </DataTemplate>
     </Window.Resources>
 

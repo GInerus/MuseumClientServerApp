@@ -17,19 +17,19 @@ namespace MuseumClient.ViewModels
         }
 
         public LoginViewModel LoginVM { get; }
-        public TokenViewModel TokenVM { get; }
+        public ContentHubViewModel ContentHubVM { get; }
 
         public MainViewModel()
         {
             LoginVM = new LoginViewModel(this); // передаем MainViewModel для навигации
-            TokenVM = new TokenViewModel();
+            ContentHubVM = new ContentHubViewModel();
 
             CurrentView = LoginVM; // по умолчанию открываем экран логина
         }
 
-        public void ShowTokenView()
+        public void ShowContentHubView()
         {
-            CurrentView = TokenVM;
+            CurrentView = ContentHubVM;
         }
 
         public event PropertyChangedEventHandler? PropertyChanged;

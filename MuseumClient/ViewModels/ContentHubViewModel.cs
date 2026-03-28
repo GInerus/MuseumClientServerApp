@@ -2,7 +2,7 @@
 
 namespace MuseumClient.ViewModels
 {
-    public class TokenViewModel : INotifyPropertyChanged
+    public class ContentHubViewModel : INotifyPropertyChanged
     {
         private string _token;
         public string Token

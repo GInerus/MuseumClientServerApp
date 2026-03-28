@@ -16,11 +16,11 @@ using System.Windows.Shapes;
 namespace MuseumClient.Views
 {
     /// <summary>
-    /// Логика взаимодействия для TokenView.xaml
+    /// Логика взаимодействия для ContentHubView.xaml
     /// </summary>
-    public partial class TokenView : UserControl
+    public partial class ContentHubView : UserControl
     {
-        public TokenView()
+        public ContentHubView()
         {
             InitializeComponent();
         }

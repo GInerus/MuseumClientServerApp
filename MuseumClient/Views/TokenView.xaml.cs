@@ -1,4 +1,8 @@
-﻿using System.Text;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
@@ -12,11 +16,11 @@ using System.Windows.Shapes;
 namespace MuseumClient.Views
 {
     /// <summary>
-    /// Interaction logic for MainWindow.xaml
+    /// Логика взаимодействия для TokenView.xaml
     /// </summary>
-    public partial class MainWindow : Window
+    public partial class TokenView : UserControl
     {
-        public MainWindow()
+        public TokenView()
         {
             InitializeComponent();
         }

@@ -16,18 +16,21 @@ namespace MuseumClient.Services
         public ConfigService()
         {
             var json = File.ReadAllText("AppSettings.json");
-            dynamic config = JsonSerializer.Deserialize<dynamic>(json);
+            using var doc = JsonDocument.Parse(json);
+            var root = doc.RootElement;
+
             Server = new ServerConfig
             {
-                Protocol = config["Server"]["Protocol"],
-                Host = config["Server"]["Host"],
-                Port = config["Server"]["Port"]
+                Protocol = root.GetProperty("Server").GetProperty("Protocol").GetString(),
+                Host = root.GetProperty("Server").GetProperty("Host").GetString(),
+                Port = root.GetProperty("Server").GetProperty("Port").GetInt32()
             };
+
             Streaming = new StreamingConfig
             {
-                Protocol = config["Streaming"]["Protocol"],
-                Host = config["Streaming"]["Host"],
-                Port = config["Streaming"]["Port"]
+                Protocol = root.GetProperty("Streaming").GetProperty("Protocol").GetString(),
+                Host = root.GetProperty("Streaming").GetProperty("Host").GetString(),
+                Port = root.GetProperty("Streaming").GetProperty("Port").GetInt32()
             };
         }
     }

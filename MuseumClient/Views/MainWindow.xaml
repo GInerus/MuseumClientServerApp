@@ -2,12 +2,26 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:vm="clr-namespace:MuseumClient.ViewModels"
+        xmlns:views="clr-namespace:MuseumClient.Views"
         Title="Museum Client" Height="600" Width="800">
-    
+
+    <!-- Устанавливаем DataContext окна -->
     <Window.DataContext>
         <vm:MainViewModel/>
     </Window.DataContext>
 
+    <!-- Ресурсы DataTemplate для автоматического отображения View по типу ViewModel -->
+    <Window.Resources>
+        <DataTemplate DataType="{x:Type vm:LoginViewModel}">
+            <views:LoginView/>
+        </DataTemplate>
+
+        <DataTemplate DataType="{x:Type vm:TokenViewModel}">
+            <views:TokenView/>
+        </DataTemplate>
+    </Window.Resources>
+
+    <!-- Контейнер, который будет показывать текущее представление -->
     <Grid>
         <ContentControl Content="{Binding CurrentView}"/>
     </Grid>

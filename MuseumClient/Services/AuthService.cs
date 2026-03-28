@@ -1,7 +1,8 @@
-﻿using System.Net.Http;
+﻿using MuseumClient.Models;
+using System.Net.Http;
 using System.Net.Http.Json;
 using System.Threading.Tasks;
-using MuseumClient.Models;
+using System.Windows;
 
 namespace MuseumClient.Services
 {

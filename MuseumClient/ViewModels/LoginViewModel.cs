@@ -33,14 +33,16 @@ namespace MuseumClient.ViewModels
         public LoginViewModel(MainViewModel mainVM)
         {
             _mainVM = mainVM;
-            _authService = new AuthService(new Services.ConfigService().Server);
+
+            // Инициализация Singleton AuthService с конфигом
+            var config = new Services.ConfigService().Server;
+            AuthService.Instance(config);
 
             RegisterCommand = new RelayCommand(async _ =>
             {
-                bool success = await _authService.RegisterAsync(UserType, UserPassword);
+                bool success = await AuthService.Instance().RegisterAsync(UserType, UserPassword);
                 if (success)
                 {
-                    _mainVM.ContentHubVM.SetToken(_authService.CurrentToken);
                     _mainVM.ShowContentHubView();
                 }
                 else

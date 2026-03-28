@@ -1,24 +1,12 @@
 ﻿using System.ComponentModel;
+using MuseumClient.Services;
 
 namespace MuseumClient.ViewModels
 {
     public class ContentHubViewModel : INotifyPropertyChanged
     {
-        private string _token;
-        public string Token
-        {
-            get => _token;
-            set
-            {
-                _token = value;
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Token)));
-            }
-        }
-
-        public void SetToken(string token)
-        {
-            Token = token;
-        }
+        // Получаем токен напрямую из Singleton AuthService
+        public string Text => AuthService.Instance().CurrentToken;
 
         public event PropertyChangedEventHandler? PropertyChanged;
     }

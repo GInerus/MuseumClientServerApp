@@ -4,7 +4,7 @@
     
     <StackPanel Margin="20">
         <TextBlock Text="Your token:" FontWeight="Bold"/>
-        <TextBox Text="{Binding Token}" IsReadOnly="True"/>
+        <TextBox Text="{Binding Text, Mode=OneWay}" />
     </StackPanel>
     
 </UserControl>

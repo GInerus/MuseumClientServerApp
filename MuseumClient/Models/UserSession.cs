@@ -6,7 +6,10 @@ using System.Threading.Tasks;
 
 namespace MuseumClient.Models
 {
-    internal class UserSession
+    public class UserSession
     {
+        public string status { get; set; }
+        public string token { get; set; }
+        public string userType { get; set; }
     }
 }

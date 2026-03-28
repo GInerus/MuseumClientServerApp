@@ -7,11 +7,11 @@ namespace MuseumServer.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class DepartmentsController : ControllerBase
+    public class DepartmentController : ControllerBase
     {
         private readonly DepartmentService _service;
 
-        public DepartmentsController(DepartmentService service)
+        public DepartmentController(DepartmentService service)
         {
             _service = service;
         }

@@ -9,11 +9,11 @@ namespace MuseumServer.Controllers
     [ApiController]
     [Route("api/[controller]")]
     [SessionAuthorize]
-    public class MediaFilesController : ControllerBase
+    public class MediaFileController : ControllerBase
     {
         private readonly MediaFileService _service;
 
-        public MediaFilesController(MediaFileService service)
+        public MediaFileController(MediaFileService service)
         {
             _service = service;
         }

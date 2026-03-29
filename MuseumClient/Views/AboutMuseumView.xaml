@@ -3,12 +3,35 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
              xmlns:local="clr-namespace:MuseumClient.Views"
              mc:Ignorable="d">
-    
-    <StackPanel Margin="20">
-        <TextBlock Text="Your token:" FontWeight="Bold"/>
-        <TextBox Text="{Binding Text, Mode=OneWay}" />
-    </StackPanel>
+
+    <i:Interaction.Triggers>
+        <i:EventTrigger EventName="Loaded">
+            <i:InvokeCommandAction Command="{Binding LoadCommand}" />
+        </i:EventTrigger>
+    </i:Interaction.Triggers>
+
+    <Grid>
+        <StackPanel Orientation="Horizontal">
+            <StackPanel Margin="20" Orientation="Horizontal">
+                <TextBlock Text="Отделов:" FontWeight="Bold"/>
+                <TextBox Text="{Binding DepartmentCount, Mode=OneWay}" />
+            </StackPanel>
+            <StackPanel Margin="20" Orientation="Horizontal">
+                <TextBlock Text="Статей:" FontWeight="Bold"/>
+                <TextBox Text="{Binding DocumentCount, Mode=OneWay}" />
+            </StackPanel>
+            <StackPanel Margin="20" Orientation="Horizontal">
+                <TextBlock Text="Экспонатов:" FontWeight="Bold"/>
+                <TextBox Text="{Binding ExhibitCount, Mode=OneWay}" />
+            </StackPanel>
+            <StackPanel Margin="20" Orientation="Horizontal">
+                <TextBlock Text="Медиафайлов:" FontWeight="Bold"/>
+                <TextBox Text="{Binding MediaFileCount, Mode=OneWay}" />
+            </StackPanel>
+        </StackPanel>
+    </Grid>
 
 </UserControl>

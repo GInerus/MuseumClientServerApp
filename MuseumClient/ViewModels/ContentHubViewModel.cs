@@ -54,11 +54,6 @@ namespace MuseumClient.ViewModels
 
             // Стартовая вкладка
             CurrentTabView = AboutMuseumVM;
-            // Асинхронно загружаем данные после рендера UI
-            System.Windows.Application.Current.Dispatcher.InvokeAsync(async () =>
-            {
-                await AboutMuseumVM.LoadDepartmentCountAsync();
-            });
         }
 
         public event PropertyChangedEventHandler? PropertyChanged;

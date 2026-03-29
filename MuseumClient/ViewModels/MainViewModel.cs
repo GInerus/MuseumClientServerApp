@@ -22,6 +22,7 @@ namespace MuseumClient.ViewModels
         public MainViewModel()
         {
             LoginVM = new LoginViewModel(this); // передаем MainViewModel для навигации
+
             ContentHubVM = new ContentHubViewModel();
 
             CurrentView = LoginVM; // по умолчанию открываем экран логина

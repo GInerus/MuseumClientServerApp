@@ -1,6 +1,7 @@
 ﻿using System.Net.Http;
 using System.Net.Http.Json;
 using System.Threading.Tasks;
+using System.Windows;
 using MuseumClient.Models;
 
 namespace MuseumClient.Services
@@ -16,16 +17,54 @@ namespace MuseumClient.Services
             _authService = authService;
         }
 
-        public async Task<T> SendRequestAsync<T>(string endpoint, object payload)
+        private HttpClient CreateClient()
         {
-            using var client = new HttpClient();
+            var client = new HttpClient();
+            var token = _authService.CurrentToken;
 
-            if (!string.IsNullOrEmpty(_authService.CurrentToken))
-                client.DefaultRequestHeaders.Authorization =
-                    new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", _authService.CurrentToken);
+            if (!string.IsNullOrEmpty(token))
+            {
+                client.DefaultRequestHeaders.Add("token", token);
+            }
+            return client;
+        }
 
+        // Универсальный GET
+        public async Task<T> GetAsync<T>(string endpoint)
+        {
+            using var client = CreateClient();
+            var url = $"{_serverConfig.Protocol}://{_serverConfig.Host}:{_serverConfig.Port}/api/{endpoint}";
+            var response = await client.GetAsync(url);
+            response.EnsureSuccessStatusCode();
+            return await response.Content.ReadFromJsonAsync<T>();
+        }
+
+        // Универсальный POST
+        public async Task<T> PostAsync<T>(string endpoint, object payload)
+        {
+            using var client = CreateClient();
             var url = $"{_serverConfig.Protocol}://{_serverConfig.Host}:{_serverConfig.Port}/api/{endpoint}";
             var response = await client.PostAsJsonAsync(url, payload);
+            response.EnsureSuccessStatusCode();
+            return await response.Content.ReadFromJsonAsync<T>();
+        }
+
+        // Универсальный PUT
+        public async Task<T> PutAsync<T>(string endpoint, object payload)
+        {
+            using var client = CreateClient();
+            var url = $"{_serverConfig.Protocol}://{_serverConfig.Host}:{_serverConfig.Port}/api/{endpoint}";
+            var response = await client.PutAsJsonAsync(url, payload);
+            response.EnsureSuccessStatusCode();
+            return await response.Content.ReadFromJsonAsync<T>();
+        }
+
+        // Универсальный DELETE
+        public async Task<T> DeleteAsync<T>(string endpoint)
+        {
+            using var client = CreateClient();
+            var url = $"{_serverConfig.Protocol}://{_serverConfig.Host}:{_serverConfig.Port}/api/{endpoint}";
+            var response = await client.DeleteAsync(url);
             response.EnsureSuccessStatusCode();
             return await response.Content.ReadFromJsonAsync<T>();
         }

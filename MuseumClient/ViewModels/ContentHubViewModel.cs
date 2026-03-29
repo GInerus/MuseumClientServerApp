@@ -1,12 +1,48 @@
-﻿using System.ComponentModel;
+﻿using MuseumClient.Models;
 using MuseumClient.Services;
+using System.ComponentModel;
 
 namespace MuseumClient.ViewModels
 {
     public class ContentHubViewModel : INotifyPropertyChanged
     {
-        // Получаем токен напрямую из Singleton AuthService
-        public string Text => AuthService.Instance().CurrentToken;
+        private readonly ApiService _apiService;
+
+        public ContentHubViewModel()
+        {
+            // Получаем настройки сервера из ConfigService
+            var config = new ConfigService().Server;
+
+            // Создаём ApiService с токеном из AuthService
+            _apiService = new ApiService(config, AuthService.Instance());
+        }
+
+        private string _text = "Загрузка...";
+        public string Text
+        {
+            get => _text;
+            set
+            {
+                _text = value;
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Text)));
+            }
+        }
+
+        public async Task LoadDepartmentCountAsync()
+        {
+            try
+            {
+                // Вызываем GET /api/Department/count
+                var countResponse = await _apiService.GetAsync<CountResponse>("Department/count");
+
+                // Сохраняем число в свойство Text
+                Text = $"Количество отделов: {countResponse.Count}";
+            }
+            catch (Exception ex)
+            {
+                Text = $"Ошибка загрузки: {ex.Message}";
+            }
+        }
 
         public event PropertyChangedEventHandler? PropertyChanged;
     }

@@ -43,7 +43,6 @@ namespace MuseumClient.ViewModels
                 bool success = await AuthService.Instance().RegisterAsync(UserType, UserPassword);
                 if (success)
                 {
-                    await _mainVM.ContentHubVM.LoadDepartmentCountAsync();
                     _mainVM.ShowContentHubView();
 
                 }

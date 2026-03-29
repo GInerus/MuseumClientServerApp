@@ -1,47 +1,64 @@
-﻿using MuseumClient.Models;
-using MuseumClient.Services;
-using System.ComponentModel;
+﻿using System.ComponentModel;
+using MuseumClient.Commands;
 
 namespace MuseumClient.ViewModels
 {
     public class ContentHubViewModel : INotifyPropertyChanged
     {
-        private readonly ApiService _apiService;
+        private object _currentTabView;
+        public object CurrentTabView
+        {
+            get => _currentTabView;
+            set
+            {
+                _currentTabView = value;
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(CurrentTabView)));
+            }
+        }
+
+        // Внутренние ViewModels
+        public AboutMuseumViewModel AboutMuseumVM { get; }
+        //public DepartmentViewModel DepartmentVM { get; }
+        //public DocumentViewModel DocumentVM { get; }
+
+        // Команды для кнопок
+        public RelayCommand ShowAboutMuseumCommand { get; }
+        //public RelayCommand ShowDepartmentsCommand { get; }
+        //public RelayCommand ShowDocumentsCommand { get; }
 
         public ContentHubViewModel()
         {
-            // Получаем настройки сервера из ConfigService
-            var config = new ConfigService().Server;
+            // Инициализация внутренних ViewModel
+            AboutMuseumVM = new AboutMuseumViewModel();
+            //DepartmentVM = new DepartmentViewModel();
+            //DocumentVM = new DocumentViewModel();
 
-            // Создаём ApiService с токеном из AuthService
-            _apiService = new ApiService(config, AuthService.Instance());
-        }
-
-        private string _text = "Загрузка...";
-        public string Text
-        {
-            get => _text;
-            set
+            // Команды
+            ShowAboutMuseumCommand = new RelayCommand(async _ =>
             {
-                _text = value;
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Text)));
-            }
-        }
+                CurrentTabView = AboutMuseumVM;
+                await AboutMuseumVM.LoadDepartmentCountAsync(); // обновляем данные
+            });
 
-        public async Task LoadDepartmentCountAsync()
-        {
-            try
-            {
-                // Вызываем GET /api/Department/count
-                var countResponse = await _apiService.GetAsync<CountResponse>("Department/count");
+            //ShowDepartmentsCommand = new RelayCommand(async _ =>
+            //{
+            //    CurrentTabView = DepartmentVM;
+            //    await Task.CompletedTask;
+            //});
 
-                // Сохраняем число в свойство Text
-                Text = $"Количество отделов: {countResponse.Count}";
-            }
-            catch (Exception ex)
+            //ShowDocumentsCommand = new RelayCommand(async _ =>
+            //{
+            //    CurrentTabView = DocumentVM;
+            //    await Task.CompletedTask;
+            //});
+
+            // Стартовая вкладка
+            CurrentTabView = AboutMuseumVM;
+            // Асинхронно загружаем данные после рендера UI
+            System.Windows.Application.Current.Dispatcher.InvokeAsync(async () =>
             {
-                Text = $"Ошибка загрузки: {ex.Message}";
-            }
+                await AboutMuseumVM.LoadDepartmentCountAsync();
+            });
         }
 
         public event PropertyChangedEventHandler? PropertyChanged;

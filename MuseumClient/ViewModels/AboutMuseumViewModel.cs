@@ -12,7 +12,10 @@ namespace MuseumClient.ViewModels
 {
     public class AboutMuseumViewModel : INotifyPropertyChanged
     {
-        private string _text = "Загрузка...";
+        private string _departmentCount = "Загрузка...";
+        private string _documentCount = "Загрузка...";
+        private string _exhibitCount = "Загрузка...";
+        private string _mediaFileCount = "Загрузка...";
 
         private readonly ApiService _apiService;
 
@@ -31,40 +34,40 @@ namespace MuseumClient.ViewModels
 
         public string DepartmentCount
         {
-            get => _text;
+            get => _departmentCount;
             set
             {
-                _text = value;
+                _departmentCount = value;
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(DepartmentCount)));
             }
         }
 
         public string DocumentCount
         {
-            get => _text;
+            get => _documentCount;
             set
             {
-                _text = value;
+                _documentCount = value;
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(DocumentCount)));
             }
         }
 
         public string ExhibitCount
         {
-            get => _text;
+            get => _exhibitCount;
             set
             {
-                _text = value;
+                _exhibitCount = value;
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(ExhibitCount)));
             }
         }
 
         public string MediaFileCount
         {
-            get => _text;
+            get => _mediaFileCount;
             set
             {
-                _text = value;
+                _mediaFileCount = value;
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(MediaFileCount)));
             }
         }
@@ -73,20 +76,17 @@ namespace MuseumClient.ViewModels
         {
             try
             {
-                // Вызываем GET /api/Department/count
-                var departmentCountResponse = await _apiService.GetAsync<CountResponse>("Department/count");
-                // Вызываеем GET /api/Document/count
-                var documentCountResponse = await _apiService.GetAsync<CountResponse>("Document/count");
-                // Вызываем GET /api/Exhibit/count
-                var exhibitCountResponse = await _apiService.GetAsync<CountResponse>("Exhibit/count");
-                // Вызываеем GET /api/MediaFile/count
-                var mediaFileCountResponse = await _apiService.GetAsync<CountResponse>("MediaFile/count");
+                var departmentTask = _apiService.GetAsync<CountResponse>("Department/count");
+                var documentTask = _apiService.GetAsync<CountResponse>("Document/count");
+                var exhibitTask = _apiService.GetAsync<CountResponse>("Exhibit/count");
+                var mediaTask = _apiService.GetAsync<CountResponse>("MediaFile/count");
 
-                // Сохраняем числа в свойство Text
-                DepartmentCount = (departmentCountResponse.Count).ToString();
-                DocumentCount = (documentCountResponse.Count).ToString();
-                ExhibitCount = (exhibitCountResponse.Count).ToString();
-                MediaFileCount = (mediaFileCountResponse.Count).ToString();
+                await Task.WhenAll(departmentTask, documentTask, exhibitTask, mediaTask);
+
+                DepartmentCount = (await departmentTask).Count.ToString();
+                DocumentCount = (await documentTask).Count.ToString();
+                ExhibitCount = (await exhibitTask).Count.ToString();
+                MediaFileCount = (await mediaTask).Count.ToString();
             }
             catch (Exception ex)
             {

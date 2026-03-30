@@ -21,8 +21,11 @@
         <!-- Панель кнопок для вкладок -->
         <StackPanel Orientation="Vertical" Grid.Column="0" Background="LightGray">
             <Button Content="О музее" Command="{Binding ShowAboutMuseumCommand}" Margin="5"/>
+            <Button Content="Статьи" Command="{Binding ShowDocumentsCommand}" Margin="5"/>
+            <Button Content="Экспонаты" Command="{Binding ShowExhibitsCommand}" Margin="5"/>
             <Button Content="Отделы" Command="{Binding ShowDepartmentsCommand}" Margin="5"/>
-            <Button Content="Документы" Command="{Binding ShowDocumentsCommand}" Margin="5"/>
+            <Button Content="Иллюстрации" Command="{Binding ShowIllustrationsCommand}" Margin="5"/>
+            <Button Content="Видео" Command="{Binding ShowVideosCommand}" Margin="5"/>
             <Button Content="Выйти" Command="{Binding ExitCommand}" Margin="5"/>
         </StackPanel>
 

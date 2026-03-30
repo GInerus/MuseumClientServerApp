@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel;
+using System.Windows;
 using MuseumClient.Commands;
 
 namespace MuseumClient.ViewModels
@@ -20,14 +21,18 @@ namespace MuseumClient.ViewModels
         public AboutMuseumViewModel AboutMuseumVM { get; }
         //public DepartmentViewModel DepartmentVM { get; }
         //public DocumentViewModel DocumentVM { get; }
+        private readonly MainViewModel _mainVM;
 
         // Команды для кнопок
         public RelayCommand ShowAboutMuseumCommand { get; }
         //public RelayCommand ShowDepartmentsCommand { get; }
         //public RelayCommand ShowDocumentsCommand { get; }
+        public RelayCommand ExitCommand { get; }
 
-        public ContentHubViewModel()
+        public ContentHubViewModel(MainViewModel mainVM)
         {
+            _mainVM = mainVM;
+
             // Инициализация внутренних ViewModel
             AboutMuseumVM = new AboutMuseumViewModel();
             //DepartmentVM = new DepartmentViewModel();
@@ -38,6 +43,11 @@ namespace MuseumClient.ViewModels
             {
                 CurrentTabView = AboutMuseumVM;
                 await AboutMuseumVM.LoadDepartmentCountAsync(); // обновляем данные
+            });
+
+            ExitCommand = new RelayCommand(async _ =>
+            {
+                _mainVM.ShowLoginView();
             });
 
             //ShowDepartmentsCommand = new RelayCommand(async _ =>

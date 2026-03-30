@@ -23,6 +23,7 @@
             <Button Content="О музее" Command="{Binding ShowAboutMuseumCommand}" Margin="5"/>
             <Button Content="Отделы" Command="{Binding ShowDepartmentsCommand}" Margin="5"/>
             <Button Content="Документы" Command="{Binding ShowDocumentsCommand}" Margin="5"/>
+            <Button Content="Выйти" Command="{Binding ExitCommand}" Margin="5"/>
         </StackPanel>
 
         <!-- Контейнер для текущей вкладки -->

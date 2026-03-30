@@ -23,7 +23,7 @@ namespace MuseumClient.ViewModels
         {
             LoginVM = new LoginViewModel(this); // передаем MainViewModel для навигации
 
-            ContentHubVM = new ContentHubViewModel();
+            ContentHubVM = new ContentHubViewModel(this);
 
             CurrentView = LoginVM; // по умолчанию открываем экран логина
         }
@@ -31,6 +31,11 @@ namespace MuseumClient.ViewModels
         public void ShowContentHubView()
         {
             CurrentView = ContentHubVM;
+        }
+
+        public void ShowLoginView()
+        {
+            CurrentView = LoginVM;
         }
 
         public event PropertyChangedEventHandler? PropertyChanged;

@@ -9,6 +9,6 @@
         public int? ExhibitId { get; set; }
 
         // Минимальная информация об отделе
-        public DepartmentInfo Department { get; set; } = new DepartmentInfo();
+        public DepartmentInfo? Department { get; set; }
     }
 }

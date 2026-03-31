@@ -15,41 +15,43 @@ namespace MuseumServer.Services
         }
 
         // Получить все документы
-        public async Task<List<DocumentResponse>> GetAllDocumentsAsync()
+        public async Task<List<DocumentFullResponse>> GetAllDocumentsAsync()
         {
             return await _context.Documents
                 .Include(d => d.Department)
-                .Select(d => new DocumentResponse
+                .Select(d => new DocumentFullResponse
                 {
                     DocumentId = d.DocumentId,
-                    FilePath = d.FilePath,
+                    Title = d.Title,
                     FileType = d.FileType,
-                    ExhibitId = d.ExhibitId,
-                    Department = new DepartmentInfo
+                    Department = d.Department != null ? new DepartmentInfo
                     {
                         DepartmentId = d.Department.DepartmentId,
                         Name = d.Department.Name,
                     }
+                    : null // если отдела нет, оставляем null
                 })
                 .ToListAsync();
         }
 
         // Получить один документ по id
-        public async Task<DocumentResponse?> GetDocumentAsync(int id)
+        public async Task<DocumentFullResponse?> GetDocumentAsync(int id)
         {
             return await _context.Documents
                 .Where(d => d.DocumentId == id)
-                .Select(d => new DocumentResponse
+                .Select(d => new DocumentFullResponse
                 {
                     DocumentId = d.DocumentId,
+                    Title = d.Title,
                     FilePath = d.FilePath,
                     FileType = d.FileType,
                     ExhibitId = d.ExhibitId,
-                    Department = new DepartmentInfo
+                    Department = d.Department != null ? new DepartmentInfo
                     {
                         DepartmentId = d.Department.DepartmentId,
-                        Name = d.Department.Name
+                        Name = d.Department.Name,
                     }
+                    : null // если отдела нет, оставляем null
                 })
                 .FirstOrDefaultAsync();
         }

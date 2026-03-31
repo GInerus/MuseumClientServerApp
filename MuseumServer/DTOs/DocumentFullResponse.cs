@@ -1,6 +1,6 @@
 ﻿namespace MuseumServer.DTOs
 {
-    public class DocumentResponse
+    public class DocumentFullResponse
     {
         public int DocumentId { get; set; }
         public string Title { get; set; } = string.Empty;

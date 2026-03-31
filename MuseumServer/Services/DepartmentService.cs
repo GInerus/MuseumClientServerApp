@@ -84,7 +84,7 @@ namespace MuseumServer.Services
             {
                 content.Documents = await _context.Documents
                     .Where(d => d.DepartmentId == departmentId)
-                    .Select(d => new DocumentResponse
+                    .Select(d => new DocumentFullResponse
                     {
                         DocumentId = d.DocumentId,
                         FilePath = d.FilePath,

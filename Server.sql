@@ -59,10 +59,11 @@ GO
 CREATE TABLE Documents
 (
     DocumentId INT IDENTITY(1,1) PRIMARY KEY,
+    Title NVARCHAR(200) NOT NULL,
     FilePath NVARCHAR(500) NOT NULL,
     FileType NVARCHAR(20) NOT NULL,
     ExhibitId INT NULL,
-    DepartmentId INT NOT NULL,
+    DepartmentId INT NULL,
 
     CONSTRAINT FK_Documents_Exhibits
         FOREIGN KEY (ExhibitId)
@@ -72,7 +73,7 @@ CREATE TABLE Documents
     CONSTRAINT FK_Documents_Departments
         FOREIGN KEY (DepartmentId)
         REFERENCES Departments(DepartmentId)
-        ON DELETE NO ACTION,  -- убрали CASCADE
+        ON DELETE NO ACTION,
 
     CONSTRAINT CHK_Documents_FileType
         CHECK (FileType IN ('pdf', 'doc', 'docx', 'txt', 'md'))

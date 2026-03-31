@@ -9,6 +9,10 @@ namespace MuseumServer.Models
         public int DocumentId { get; private set; }  // автоинкремент
 
         [Required]
+        [MaxLength(200)]
+        public string Name { get; set; } = string.Empty; // Название документа (статьи)
+
+        [Required]
         [MaxLength(500)]
         public string FilePath { get; set; } = string.Empty;
 
@@ -21,9 +25,8 @@ namespace MuseumServer.Models
 
         public Exhibit? Exhibit { get; set; }
 
-        // Связь с отделом (обязательна)
-        [Required]
-        public int DepartmentId { get; set; }
-        public Department Department { get; set; } = null!;
+        // Связь с отделом (может быть null)
+        public int? DepartmentId { get; set; }
+        public Department? Department { get; set; }
     }
 }

@@ -15,11 +15,11 @@ namespace MuseumServer.Services
         }
 
         // Получить все документы
-        public async Task<List<DocumentFullResponse>> GetAllDocumentsAsync()
+        public async Task<List<DocumentResponse>> GetAllDocumentsAsync()
         {
             return await _context.Documents
                 .Include(d => d.Department)
-                .Select(d => new DocumentFullResponse
+                .Select(d => new DocumentResponse
                 {
                     DocumentId = d.DocumentId,
                     Title = d.Title,

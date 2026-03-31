@@ -10,7 +10,7 @@ namespace MuseumServer.Models
 
         [Required]
         [MaxLength(200)]
-        public string Name { get; set; } = string.Empty; // Название документа (статьи)
+        public string Title { get; set; } = string.Empty; // Название документа (статьи)
 
         [Required]
         [MaxLength(500)]

@@ -102,6 +102,17 @@
                         </Style>
                     </StackPanel.Style>
 
+                    <!-- 🖥 Информация о системе (видно всем) -->
+                    <Button Style="{StaticResource SettingsCardButtonStyle}"
+                            Margin="0,0,0,12"
+                            Command="{Binding SelectSectionCommand}"
+                            CommandParameter="System">
+                        <StackPanel>
+                            <TextBlock Text="🖥 Информация о системе" FontSize="16" FontWeight="SemiBold" Foreground="#1F2937"/>
+                            <TextBlock Text="Версии клиента и сервера" Foreground="#6B7280" FontSize="13" Margin="0,4,0,0"/>
+                        </StackPanel>
+                    </Button>
+
                     <!-- 🔒 Смена пароля (только админ) -->
                     <Button Style="{StaticResource SettingsCardButtonStyle}"
                             Margin="0,0,0,12"
@@ -125,17 +136,7 @@
                             <TextBlock Text="История изменений в системе" Foreground="#6B7280" FontSize="13" Margin="0,4,0,0"/>
                         </StackPanel>
                     </Button>
-
-                    <!-- 🖥 Информация о системе (видно всем) -->
-                    <Button Style="{StaticResource SettingsCardButtonStyle}"
-                            Command="{Binding SelectSectionCommand}"
-                            CommandParameter="System">
-                        <StackPanel>
-                            <TextBlock Text="🖥 Информация о системе" FontSize="16" FontWeight="SemiBold" Foreground="#1F2937"/>
-                            <TextBlock Text="Версии клиента и сервера" Foreground="#6B7280" FontSize="13" Margin="0,4,0,0"/>
-                        </StackPanel>
-                    </Button>
-
+                    
                 </StackPanel>
 
                 <!-- ========================= -->

@@ -8,11 +8,13 @@ namespace MuseumServer.Services
     public class SessionService
     {
         private readonly IDbContextFactory<MuseumContext> _dbFactory;
+        private readonly LoggingService _logging;
         private readonly TimeSpan _sessionLifetime = TimeSpan.FromHours(12);
 
-        public SessionService(IDbContextFactory<MuseumContext> dbFactory)
+        public SessionService(IDbContextFactory<MuseumContext> dbFactory, LoggingService logging)
         {
             _dbFactory = dbFactory;
+            _logging = logging;
         }
 
         public string CreateSession(string userType)
@@ -95,6 +97,8 @@ namespace MuseumServer.Services
                 db.Sessions.RemoveRange(oldSessions);
                 db.SaveChanges();
                 Console.WriteLine($"Удалено сессий: {oldSessions.Count}");
+
+                _ = _logging.LogAsync("system", "SessionCleanup", "Session", $"Удалено сессий: {oldSessions.Count}");
             }
         }
     }

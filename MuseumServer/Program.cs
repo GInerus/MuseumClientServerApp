@@ -32,6 +32,7 @@ namespace MuseumServer
             builder.Services.AddScoped<IFileService, FileService>();
             builder.Services.AddScoped<ImageProcessor>();
             builder.Services.AddScoped<VideoProcessor>();
+            builder.Services.AddSingleton<LoggingService>();
 
             builder.Services.Configure<FormOptions>(options =>
             {

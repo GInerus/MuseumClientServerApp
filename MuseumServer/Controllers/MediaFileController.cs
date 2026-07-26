@@ -17,6 +17,7 @@ namespace MuseumServer.Controllers
         private readonly IFileService _fileService;
         private readonly ImageProcessor _imageProcessor;
         private readonly VideoProcessor _videoProcessor;
+        private readonly LoggingService _logging;
 
         // Конструктор
         public MediaFileController(
@@ -24,13 +25,15 @@ namespace MuseumServer.Controllers
             IWebHostEnvironment env,
             IFileService fileService,
             ImageProcessor imageProcessor,
-            VideoProcessor videoProcessor)
+            VideoProcessor videoProcessor,
+            LoggingService logging)
         {
             _service = service;
             _env = env;
             _fileService = fileService;
             _imageProcessor = imageProcessor;
             _videoProcessor = videoProcessor;
+            _logging = logging;
         }
 
         // GET: api/MediaFiles
@@ -139,6 +142,10 @@ namespace MuseumServer.Controllers
 
             var created = await _service.CreateAsync(media);
 
+            var entityType = mediaType == "image" ? "Image" : "Video";
+
+            await _logging.LogAsync("admin", "Create", entityType, created.Title);
+
             return Ok(new { status = "ok", data = created });
         }
 
@@ -147,9 +154,15 @@ namespace MuseumServer.Controllers
         [SessionAuthorize(adminOnly: true)]
         public async Task<IActionResult> Delete([FromHeader] string token, int id)
         {
+            var existing = await _service.GetEntityAsync(id);
+
             var deleted = await _service.DeleteAsync(id);
             if (!deleted)
                 return NotFound(new { status = "error", message = "Media file not found" });
+
+            var entityType = existing?.MediaType == "image" ? "Image" : "Video";
+
+            await _logging.LogAsync("admin", "Delete", entityType, existing?.Title);
 
             return Ok(new { status = "ok" });
         }

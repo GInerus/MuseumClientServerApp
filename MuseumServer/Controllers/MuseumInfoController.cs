@@ -12,10 +12,12 @@ namespace MuseumServer.Controllers
     public class MuseumInfoController : ControllerBase
     {
         private readonly MuseumInfoService _service;
+        private readonly LoggingService _logging;
 
-        public MuseumInfoController(MuseumInfoService service)
+        public MuseumInfoController(MuseumInfoService service, LoggingService logging)
         {
             _service = service;
+            _logging = logging;
         }
 
         // GET: api/MuseumInfo
@@ -48,6 +50,7 @@ namespace MuseumServer.Controllers
             switch (result)
             {
                 case ChangePasswordResult.Success:
+                    await _logging.LogAsync("admin", "ChangePassword");
 
                     return Ok(new
                     {

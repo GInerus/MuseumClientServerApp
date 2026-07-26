@@ -13,6 +13,7 @@ namespace MuseumServer.Data
         public DbSet<Document> Documents { get; set; }
         public DbSet<MediaFile> MediaFiles { get; set; }
         public DbSet<MuseumInfo> MuseumInfo { get; set; } = null!;
+        public DbSet<LogEntry> Logs { get; set; } = null!;
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

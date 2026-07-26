@@ -9,14 +9,16 @@ namespace MuseumServer.Controllers
     public class SessionController : ControllerBase
     {
         private readonly SessionService _sessionService;
+        private readonly LoggingService _logging;
 
-        public SessionController(SessionService sessionService)
+        public SessionController(SessionService sessionService, LoggingService logging)
         {
             _sessionService = sessionService;
+            _logging = logging;
         }
 
         [HttpPost("register")]
-        public IActionResult Register([FromBody] SessionRequest request)
+        public async Task<IActionResult> Register([FromBody] SessionRequest request)
         {
             var allowedUserTypes = new[] { "guest", "admin" };
 
@@ -28,6 +30,8 @@ namespace MuseumServer.Controllers
 
             var token = _sessionService.CreateSession(request.UserType);
 
+            await _logging.LogAsync(request.UserType, "Login");
+
             return Ok(new { status = "ok", token, userType = request.UserType });
         }
 
@@ -35,10 +39,8 @@ namespace MuseumServer.Controllers
         public IActionResult Validate(string token)
         {
             var session = _sessionService.GetSession(token);
-
             if (session == null)
                 return Unauthorized(new { status = "error", message = "INVALID_SESSION" });
-
             return Ok(new { status = "ok", userType = session.UserType });
         }
     }

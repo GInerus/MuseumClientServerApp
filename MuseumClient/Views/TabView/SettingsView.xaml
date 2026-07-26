@@ -113,6 +113,25 @@
                         </StackPanel>
                     </Button>
 
+                    <!-- 📖 Руководство пользователя -->
+                    <Button Style="{StaticResource SettingsCardButtonStyle}"
+                            Margin="0,0,0,12"
+                            Command="{Binding OpenGuideCommand}">
+
+                        <StackPanel>
+                            <TextBlock Text="📖 Руководство пользователя"
+                                       FontSize="16"
+                                       FontWeight="SemiBold"
+                                       Foreground="#1F2937"/>
+
+                            <TextBlock Text="Инструкция по работе с программой"
+                                       Foreground="#6B7280"
+                                       FontSize="13"
+                                       Margin="0,4,0,0"/>
+                        </StackPanel>
+
+                    </Button>
+
                     <!-- 🔒 Смена пароля (только админ) -->
                     <Button Style="{StaticResource SettingsCardButtonStyle}"
                             Margin="0,0,0,12"
@@ -333,7 +352,6 @@
                     </Border>
 
                 </StackPanel>
-
             </Grid>
 
         </ScrollViewer>

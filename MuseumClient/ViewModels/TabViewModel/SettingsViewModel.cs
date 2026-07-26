@@ -130,9 +130,11 @@ namespace MuseumClient.ViewModels
         // View подписывается, чтобы очистить PasswordBox-ы (не биндятся напрямую)
         public event Action? PasswordChangeSucceeded;
 
+        // Список команд
         public RelayCommand SelectSectionCommand { get; }
         public RelayCommand BackToMenuCommand { get; }
         public RelayCommand ChangePasswordCommand { get; }
+        public RelayCommand OpenGuideCommand { get; }
 
         public SettingsViewModel()
         {
@@ -167,6 +169,12 @@ namespace MuseumClient.ViewModels
             });
 
             ChangePasswordCommand = new RelayCommand(async _ => await ChangePasswordAsync());
+
+            OpenGuideCommand = new RelayCommand(_ =>
+            {
+                InfoService.Show("Руководство пользователя будет добавлено позже");
+                return Task.CompletedTask;
+            });
 
         }
 

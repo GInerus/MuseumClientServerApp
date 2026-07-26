@@ -88,7 +88,7 @@ namespace MuseumClient.ViewModels
             DepartmentsVM = new DepartmentsViewModel(this);
             MediaImagesVM = new MediaImagesViewModel(this);
             MediaVideosVM = new MediaVideosViewModel(this);
-            SettingsVM = new SettingsViewModel();
+            SettingsVM = new SettingsViewModel(this);
 
             // Команды
             ShowAboutMuseumCommand = new RelayCommand(async _ =>
@@ -234,6 +234,11 @@ namespace MuseumClient.ViewModels
         public void ShowCreateVideo()
         {
             CurrentTabView = new AddVideoViewModel(this);
+        }
+
+        public void ShowGuide()
+        {
+            CurrentTabView = DocumentViewerViewModel.CreateForGuide();
         }
 
         public event PropertyChangedEventHandler? PropertyChanged;

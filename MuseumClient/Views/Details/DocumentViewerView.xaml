@@ -35,9 +35,10 @@
                            FontWeight="Bold"
                            Foreground="#1F2937"/>
 
-                    <TextBlock Text="Статья музея"
-                           FontSize="13"
-                           Foreground="#6B7280"/>
+                    <TextBlock Text="{Binding Subtitle}"
+                               FontSize="13"
+                               Foreground="#6B7280"
+                               Visibility="{Binding ShowSubtitle, Converter={StaticResource BoolToVisibilityConverter}}"/>
 
                 </StackPanel>
 

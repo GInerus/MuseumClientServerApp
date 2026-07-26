@@ -12,6 +12,7 @@ namespace MuseumClient.ViewModels
     {
         private readonly ApiService _apiService;
         private readonly AuthService _auth;
+        private readonly ContentHubViewModel _hub;
 
         private bool _canEdit;
         public bool CanEdit
@@ -136,8 +137,10 @@ namespace MuseumClient.ViewModels
         public RelayCommand ChangePasswordCommand { get; }
         public RelayCommand OpenGuideCommand { get; }
 
-        public SettingsViewModel()
+        public SettingsViewModel(ContentHubViewModel hub)
         {
+            _hub = hub;
+
             _apiService = new ApiService(
                 new ConfigService().Server,
                 AuthService.Instance());
@@ -172,7 +175,7 @@ namespace MuseumClient.ViewModels
 
             OpenGuideCommand = new RelayCommand(_ =>
             {
-                InfoService.Show("Руководство пользователя будет добавлено позже");
+                _hub.ShowGuide();
                 return Task.CompletedTask;
             });
 

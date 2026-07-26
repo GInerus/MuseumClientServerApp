@@ -121,6 +121,20 @@ N'$2a$11$ScyZQGCeneP09uny0pVNCuewMJLP.7axZej92UpqdBTiCiVOeH.5u'
 GO
 
 -- =========================
+-- Таблица: Logs (Логи)
+-- =========================
+CREATE TABLE Logs
+(
+    LogId INT IDENTITY(1,1) PRIMARY KEY,
+    UserType NVARCHAR(20) NOT NULL,
+    Action NVARCHAR(50) NOT NULL,
+    EntityType NVARCHAR(50) NULL,
+    EntityName NVARCHAR(300) NULL,
+    Timestamp DATETIME2 NOT NULL
+);
+GO
+
+-- =========================
 -- Индексы (ускорение запросов)
 -- =========================
 CREATE INDEX IX_Exhibits_DepartmentId
@@ -134,4 +148,8 @@ ON Documents(ExhibitId);
 
 CREATE INDEX IX_MediaFiles_DepartmentId
 ON MediaFiles(DepartmentId);
+
+CREATE INDEX IX_Logs_Timestamp 
+ON Logs(Timestamp DESC);
+
 GO

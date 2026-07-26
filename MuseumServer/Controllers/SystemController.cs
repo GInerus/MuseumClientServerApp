@@ -19,5 +19,32 @@ namespace MuseumServer.Controllers
                 data = new { version = version?.ToString() ?? "неизвестно" }
             });
         }
+
+        // GET: api/system/guide
+        [HttpGet("guide")]
+        public IActionResult GetGuide()
+        {
+            var path = Path.Combine(
+                Directory.GetCurrentDirectory(),
+                "wwwroot",
+                "system",
+                "UserGuide.pdf");
+
+
+            if (!System.IO.File.Exists(path))
+            {
+                return NotFound(new
+                {
+                    status = "error",
+                    message = "User guide not found"
+                });
+            }
+
+
+            return PhysicalFile(
+                path,
+                "application/pdf",
+                enableRangeProcessing: true);
+        }
     }
 }

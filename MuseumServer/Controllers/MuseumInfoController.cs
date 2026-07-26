@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using MuseumServer.Attributes;
 using MuseumServer.DTO;
 using MuseumServer.Services;

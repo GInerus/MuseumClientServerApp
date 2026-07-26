@@ -139,6 +139,8 @@ namespace MuseumClient.ViewModels
             {
                 SelectedMenu = "Settings";
                 CurrentTabView = SettingsVM;
+
+                await SettingsVM.LoadServerVersionAsync();
             });
 
             // Стартовая вкладка

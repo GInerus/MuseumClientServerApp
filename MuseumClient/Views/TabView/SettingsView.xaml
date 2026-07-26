@@ -63,17 +63,29 @@
 
     <Grid Background="White">
 
-        <ScrollViewer VerticalScrollBarVisibility="Auto"
-                      HorizontalContentAlignment="Stretch">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
 
-            <StackPanel Margin="20" MaxWidth="600" HorizontalAlignment="Stretch">
+        <!-- Заголовок -->
+        <TextBlock Grid.Row="0"
+               Text="Настройки"
+               FontSize="22"
+               FontWeight="Bold"
+               Foreground="#1F2937"
+               Margin="20,20,20,10"/>
 
-                <TextBlock Text="Настройки"
-                           FontSize="22"
-                           FontWeight="Bold"
-                           Foreground="#1F2937"
-                           Margin="0,0,0,20"/>
+        <ScrollViewer Grid.Row="1"
+              VerticalScrollBarVisibility="Auto"
+              HorizontalScrollBarVisibility="Disabled">
 
+            <Grid Margin="20"
+          HorizontalAlignment="Stretch">
+
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
                 <!-- ========================= -->
                 <!-- ГЛАВНОЕ МЕНЮ -->
                 <!-- ========================= -->
@@ -321,7 +333,7 @@
 
                 </StackPanel>
 
-            </StackPanel>
+            </Grid>
 
         </ScrollViewer>
 

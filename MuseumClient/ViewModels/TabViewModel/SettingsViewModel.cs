@@ -47,7 +47,7 @@ namespace MuseumClient.ViewModels
             }
         }
 
-        // TODO (Фаза 4): подтягивать реальную версию сервера отдельным GET-запросом
+        // Подтягивать реальную версию сервера отдельным GET-запросом
         private string _serverVersion = "—";
         public string ServerVersion
         {
@@ -56,6 +56,28 @@ namespace MuseumClient.ViewModels
             {
                 _serverVersion = value;
                 OnPropertyChanged(nameof(ServerVersion));
+            }
+        }
+
+        public async Task LoadServerVersionAsync()
+        {
+            try
+            {
+                var response = await _apiService.GetAsync<ServerVersionResponse>(
+                    "system/version");
+
+                if (response?.Data != null)
+                {
+                    ServerVersion = response.Data.Version;
+                }
+                else
+                {
+                    ServerVersion = "неизвестно";
+                }
+            }
+            catch
+            {
+                ServerVersion = "недоступно";
             }
         }
 
@@ -145,6 +167,7 @@ namespace MuseumClient.ViewModels
             });
 
             ChangePasswordCommand = new RelayCommand(async _ => await ChangePasswordAsync());
+
         }
 
         private void OnAuthChanged()

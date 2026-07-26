@@ -126,6 +126,10 @@
             <viewsDetails:AddVideoView/>
         </DataTemplate>
 
+        <DataTemplate DataType="{x:Type vm:SettingsViewModel}">
+            <views:SettingsView/>
+        </DataTemplate>
+
     </UserControl.Resources>
 
         <Grid Background="White">

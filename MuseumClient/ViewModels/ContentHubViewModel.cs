@@ -61,6 +61,7 @@ namespace MuseumClient.ViewModels
         public DepartmentsViewModel DepartmentsVM { get; }
         public MediaImagesViewModel MediaImagesVM { get; }
         public MediaVideosViewModel MediaVideosVM { get; }
+        public SettingsViewModel SettingsVM { get; }
 
         private readonly MainViewModel _mainVM;
 
@@ -72,6 +73,8 @@ namespace MuseumClient.ViewModels
         public RelayCommand ShowIllustrationsCommand { get; }
         public RelayCommand ShowVideosCommand { get; }
         public RelayCommand ExitCommand { get; }
+        public RelayCommand ShowSettingsCommand { get; }
+
 
 
         public ContentHubViewModel(MainViewModel mainVM)
@@ -85,6 +88,7 @@ namespace MuseumClient.ViewModels
             DepartmentsVM = new DepartmentsViewModel(this);
             MediaImagesVM = new MediaImagesViewModel(this);
             MediaVideosVM = new MediaVideosViewModel(this);
+            SettingsVM = new SettingsViewModel();
 
             // Команды
             ShowAboutMuseumCommand = new RelayCommand(async _ =>
@@ -129,6 +133,12 @@ namespace MuseumClient.ViewModels
                 AuthService.Instance().Logout();
 
                 _mainVM.ShowLoginView();
+            });
+
+            ShowSettingsCommand = new RelayCommand(async _ =>
+            {
+                SelectedMenu = "Settings";
+                CurrentTabView = SettingsVM;
             });
 
             // Стартовая вкладка

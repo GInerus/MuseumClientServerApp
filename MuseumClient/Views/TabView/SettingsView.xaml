@@ -243,7 +243,7 @@
                 </StackPanel>
 
                 <!-- ========================= -->
-                <!-- ЖУРНАЛ ДЕЙСТВИЙ (заглушка) -->
+                <!-- ЖУРНАЛ ДЕЙСТВИЙ -->
                 <!-- ========================= -->
 
                 <StackPanel>
@@ -266,30 +266,90 @@
 
                     <Border Background="White"
                             CornerRadius="16"
-                            Padding="30"
+                            Padding="20"
                             BorderBrush="#E5E7EB"
                             BorderThickness="2">
 
-                        <StackPanel HorizontalAlignment="Center">
-                            <TextBlock Text="🚧" FontSize="32" HorizontalAlignment="Center"/>
-                            <TextBlock Text="Журнал действий в разработке"
-                                       FontSize="16"
+                        <StackPanel>
+
+                            <TextBlock Text="📜 Журнал действий"
+                                       FontSize="18"
                                        FontWeight="SemiBold"
                                        Foreground="#1F2937"
-                                       HorizontalAlignment="Center"
-                                       Margin="0,10,0,0"/>
-                            <TextBlock Text="Здесь появится история действий администраторов: создание, редактирование и удаление объектов."
-                                       Foreground="#6B7280"
-                                       FontSize="13"
-                                       TextWrapping="Wrap"
-                                       TextAlignment="Center"
-                                       Margin="0,8,0,0"
-                                       MaxWidth="360"/>
+                                       Margin="0,0,0,15"/>
+
+                            <!-- Загрузка -->
+                            <StackPanel HorizontalAlignment="Center"
+                                        Margin="0,20"
+                                        Visibility="{Binding IsLoadingLogs, Converter={StaticResource BoolToVisibilityConverter}}">
+                                <ProgressBar Width="140" Height="6" IsIndeterminate="True"/>
+                                <TextBlock Text="Загрузка журнала..."
+                                           Foreground="#6B7280"
+                                           FontSize="13"
+                                           Margin="0,8,0,0"
+                                           HorizontalAlignment="Center"/>
+                            </StackPanel>
+
+                            <!-- Пусто -->
+                            <StackPanel HorizontalAlignment="Center" Margin="0,20">
+                                <StackPanel.Style>
+                                    <Style TargetType="StackPanel">
+                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                        <Style.Triggers>
+                                            <MultiDataTrigger>
+                                                <MultiDataTrigger.Conditions>
+                                                    <Condition Binding="{Binding Logs.Count}" Value="0"/>
+                                                    <Condition Binding="{Binding IsLoadingLogs}" Value="False"/>
+                                                </MultiDataTrigger.Conditions>
+                                                <Setter Property="Visibility" Value="Visible"/>
+                                            </MultiDataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </StackPanel.Style>
+
+                                <TextBlock Text="📭" FontSize="28" HorizontalAlignment="Center"/>
+                                <TextBlock Text="Записей пока нет"
+                                           Foreground="#6B7280"
+                                           FontSize="13"
+                                           Margin="0,8,0,0"
+                                           HorizontalAlignment="Center"/>
+                            </StackPanel>
+
+                            <!-- Список -->
+                            <ItemsControl ItemsSource="{Binding Logs}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <Border Background="#F9FAFB"
+                                                CornerRadius="10"
+                                                Padding="12"
+                                                Margin="0,0,0,8"
+                                                BorderBrush="#E5E7EB"
+                                                BorderThickness="1">
+
+                                            <StackPanel>
+                                                <TextBlock Text="{Binding FormattedTimestamp}"
+                                                           FontSize="12"
+                                                           FontWeight="SemiBold"
+                                                           Foreground="#9CA3AF"/>
+
+                                                <TextBlock Text="{Binding DisplayText}"
+                                                           FontSize="14"
+                                                           Foreground="#1F2937"
+                                                           TextWrapping="Wrap"
+                                                           Margin="0,4,0,0"/>
+                                            </StackPanel>
+
+                                        </Border>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+
                         </StackPanel>
 
                     </Border>
 
                 </StackPanel>
+
 
                 <!-- ========================= -->
                 <!-- ИНФОРМАЦИЯ О СИСТЕМЕ -->

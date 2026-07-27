@@ -2,6 +2,7 @@
 using MuseumClient.Models;
 using MuseumClient.Services;
 using System;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Reflection;
 using System.Threading.Tasks;
@@ -48,7 +49,6 @@ namespace MuseumClient.ViewModels
             }
         }
 
-        // Подтягивать реальную версию сервера отдельным GET-запросом
         private string _serverVersion = "—";
         public string ServerVersion
         {
@@ -79,6 +79,49 @@ namespace MuseumClient.ViewModels
             catch
             {
                 ServerVersion = "недоступно";
+            }
+        }
+
+        // ===== Журнал действий =====
+
+        public ObservableCollection<LogEntryDto> Logs { get; } = new();
+
+        private bool _isLoadingLogs;
+        public bool IsLoadingLogs
+        {
+            get => _isLoadingLogs;
+            set
+            {
+                _isLoadingLogs = value;
+                OnPropertyChanged(nameof(IsLoadingLogs));
+            }
+        }
+
+        private async Task LoadLogsAsync()
+        {
+            try
+            {
+                IsLoadingLogs = true;
+
+                var response = await _apiService.GetAsync<LogsResponse>("Log");
+
+                Logs.Clear();
+
+                if (response?.Data != null)
+                {
+                    foreach (var item in response.Data)
+                    {
+                        Logs.Add(item);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                InfoService.Show($"Ошибка загрузки журнала:\n{ex.Message}");
+            }
+            finally
+            {
+                IsLoadingLogs = false;
             }
         }
 
@@ -150,19 +193,22 @@ namespace MuseumClient.ViewModels
 
             CanEdit = _auth.IsAdmin;
 
-            SelectSectionCommand = new RelayCommand(param =>
+            SelectSectionCommand = new RelayCommand(async param =>
             {
                 if (param is string section)
                 {
                     // "Password" и "Log" — только для админа. Проверяем и тут,
                     // а не только скрытием кнопки в XAML — на случай прямого вызова.
                     if ((section == "Password" || section == "Log") && !CanEdit)
-                        return Task.CompletedTask;
+                        return;
 
                     SelectedSection = section;
-                }
 
-                return Task.CompletedTask;
+                    if (section == "Log")
+                    {
+                        await LoadLogsAsync();
+                    }
+                }
             });
 
             BackToMenuCommand = new RelayCommand(_ =>

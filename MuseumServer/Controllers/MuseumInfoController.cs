@@ -36,6 +36,9 @@ namespace MuseumServer.Controllers
             [FromBody] UpdateMuseumInfoRequest request)
         {
             var updated = await _service.UpdateDescriptionAsync(request.Description ?? string.Empty);
+
+            await _logging.LogAsync("admin", "Update", "MuseumInfo", "Описание музея");
+
             return Ok(new { status = "ok", data = new { description = updated } });
         }
 

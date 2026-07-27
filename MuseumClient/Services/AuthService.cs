@@ -130,5 +130,11 @@ namespace MuseumClient.Services
 
             AuthChanged?.Invoke();
         }
+
+        public void UpdateServerConfig(ServerConfig config)
+        {
+            _serverConfig.LocalUrl = config.LocalUrl;
+            _serverConfig.RemoteUrl = config.RemoteUrl;
+        }
     }
 }

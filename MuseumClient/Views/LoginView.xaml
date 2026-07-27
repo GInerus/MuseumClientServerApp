@@ -51,75 +51,138 @@
         <Border Grid.Column="1"
                 Background="White"
                 Padding="40">
+            <Grid>
+                <StackPanel VerticalAlignment="Center"
+                            Width="320">
 
-            <StackPanel VerticalAlignment="Center"
-                        Width="320">
+                    <TextBlock Text="Вход в музей"
+                               FontSize="26"
+                               FontWeight="SemiBold"
+                               Margin="0,0,0,25"
+                               HorizontalAlignment="Center"/>
 
-                <TextBlock Text="Вход в музей"
-                           FontSize="26"
-                           FontWeight="SemiBold"
-                           Margin="0,0,0,25"
-                           HorizontalAlignment="Center"/>
+                    <!-- USER TYPE заменён -->
+                    <ComboBox ItemsSource="{Binding UserTypes}"
+                              SelectedItem="{Binding SelectedUserType, Mode=TwoWay}"
+                              DisplayMemberPath="Display"
+                              Margin="0,0,0,10"
+                              Height="42"
+                              FontSize="16"/>
 
-                <!-- USER TYPE заменён -->
-                <ComboBox ItemsSource="{Binding UserTypes}"
-                          SelectedItem="{Binding SelectedUserType, Mode=TwoWay}"
-                          DisplayMemberPath="Display"
-                          Margin="0,0,0,10"
-                          Height="42"
-                          FontSize="16"/>
+                    <StackPanel Visibility="{Binding IsPasswordRequired, Converter={StaticResource BoolToVisibilityConverter}}">
 
-                <StackPanel Visibility="{Binding IsPasswordRequired, Converter={StaticResource BoolToVisibilityConverter}}">
+                        <Grid>
 
-                    <Grid>
+                            <PasswordBox local:PasswordBoxHelper.BoundPassword="{Binding UserPassword, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                         Visibility="{Binding IsPasswordVisible, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter=False}" 
+                                         FontSize="16"
+                                         Height="42"/>
 
-                        <PasswordBox local:PasswordBoxHelper.BoundPassword="{Binding UserPassword, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                     Visibility="{Binding IsPasswordVisible, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter=False}" 
+                            <TextBox Height="42"
                                      FontSize="16"
-                                     Height="42"/>
+                                     Text="{Binding UserPassword, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                     Visibility="{Binding IsPasswordVisible, Converter={StaticResource BoolToVisibilityConverter}}" />
 
-                        <TextBox Height="42"
-                                 FontSize="16"
-                                 Text="{Binding UserPassword, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                 Visibility="{Binding IsPasswordVisible, Converter={StaticResource BoolToVisibilityConverter}}" />
+                            <Button Command="{Binding TogglePasswordVisibilityCommand}"
+                                    Background="Transparent"
+                                    BorderThickness="0"
+                                    HorizontalAlignment="Right"
+                                    VerticalAlignment="Center"
+                                    Margin="0,0,8,0"
+                                    Panel.ZIndex="10">
 
-                        <Button Command="{Binding TogglePasswordVisibilityCommand}"
-                                Background="Transparent"
-                                BorderThickness="0"
-                                HorizontalAlignment="Right"
-                                VerticalAlignment="Center"
-                                Margin="0,0,8,0"
-                                Panel.ZIndex="10">
+                                <iconPacks:PackIconMaterial
+                                    Width="18"
+                                    Height="18"
+                                    Kind="{Binding IsPasswordVisible, Converter={StaticResource EyeGlyphConverter}}"/>
 
-                            <iconPacks:PackIconMaterial
-                                Width="18"
-                                Height="18"
-                                Kind="{Binding IsPasswordVisible, Converter={StaticResource EyeGlyphConverter}}"/>
+                            </Button>
 
-                        </Button>
+                        </Grid>
 
-                    </Grid>
+                    </StackPanel>
+
+                    <Button Content="Войти"
+                            Command="{Binding RegisterCommand}"
+                            Margin="0,15,0,0"
+                            Height="42"
+                            Width="100"
+                            Background="#4A90E2"
+                            Foreground="White"
+                            FontSize="18"
+                            FontWeight="SemiBold"
+                            BorderThickness="0"/>
+
+                    <TextBlock Text="{Binding ErrorMessage}"
+                               Foreground="#E74C3C"
+                               Margin="0,15,0,0"
+                               TextAlignment="Center"
+                               FontSize="16"/>
 
                 </StackPanel>
 
-                <Button Content="Войти"
-                        Command="{Binding RegisterCommand}"
-                        Margin="0,15,0,0"
-                        Height="42"
-                        Width="100"
-                        Background="#4A90E2"
-                        Foreground="White"
-                        FontSize="18"
-                        FontWeight="SemiBold"
-                        BorderThickness="0"/>
+                <Border HorizontalAlignment="Right"
+        VerticalAlignment="Bottom"
+        Margin="0,0,50,0"
+        Width="330"
+        Padding="15"
+        Background="White"
+        BorderBrush="#D1D5DB"
+        BorderThickness="1"
+        CornerRadius="10"
+        Visibility="{Binding ShowServerSettings, Converter={StaticResource BoolToVisibilityConverter}}">
 
-                <TextBlock Text="{Binding ErrorMessage}"
-                           Foreground="#E74C3C"
-                           Margin="0,15,0,0"
-                           TextAlignment="Center"
-                           FontSize="16"/>
+                    <StackPanel>
 
-            </StackPanel>
+                        <TextBlock Text="Настройки сервера"
+                   FontSize="16"
+                   FontWeight="SemiBold"
+                   Margin="0,0,0,12"/>
+
+                        <TextBlock Text="Локальный сервер"
+                   Margin="0,0,0,3"/>
+
+                        <TextBox Text="{Binding LocalUrl, UpdateSourceTrigger=PropertyChanged}"
+                 Height="32"
+                 Margin="0,0,0,10"/>
+
+                        <TextBlock Text="Удалённый сервер"
+                   Margin="0,0,0,3"/>
+
+                        <TextBox Text="{Binding RemoteUrl, UpdateSourceTrigger=PropertyChanged}"
+                 Height="32"
+                 Margin="0,0,0,15"/>
+
+                        <Button Content="Сохранить"
+                Height="34"
+                Width="120"
+                HorizontalAlignment="Right"
+                Command="{Binding SaveServerSettingsCommand}"/>
+
+                    </StackPanel>
+
+                </Border>
+
+                <!-- Кнопка настроек -->
+                <Button Width="40"
+                        Height="40"
+                        HorizontalAlignment="Right"
+                        VerticalAlignment="Bottom"
+                        Background="#F8FAFC"
+                        BorderBrush="#D1D5DB"
+                        BorderThickness="2"
+                        Cursor="Hand"
+                        Command="{Binding ToggleServerSettingsCommand}">
+
+                    <iconPacks:PackIconMaterial
+                        Kind="CogOutline"
+                        Width="18"
+                        Height="18"
+                        Foreground="Black"/>
+
+                </Button>
+            </Grid>
+
         </Border>
 
     </Grid>

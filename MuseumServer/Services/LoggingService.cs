@@ -39,5 +39,14 @@ namespace MuseumServer.Services
                 // логирование не должно ронять основную операцию
             }
         }
+
+        public async Task<List<LogEntry>> GetAllAsync()
+        {
+            using var db = _dbFactory.CreateDbContext();
+
+            return await db.Logs
+                .OrderByDescending(l => l.Timestamp)
+                .ToListAsync();
+        }
     }
 }

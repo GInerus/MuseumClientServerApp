@@ -432,6 +432,11 @@ namespace MuseumClient.ViewModels
 
         private async Task CreateFullBackupAsync()
         {
+            if (!ConfirmService.Show("Создать полный резервный бэкап?\n\nБудет создана резервная копия базы данных и медиафайлов."))
+            {
+                return;
+            }
+
             try
             {
                 IsBackupBusy = true;
@@ -455,6 +460,11 @@ namespace MuseumClient.ViewModels
         }
         private async Task CreateDifferentialBackupAsync()
         {
+            if (!ConfirmService.Show("Создать разностный резервный бэкап?\n\nБудут сохранены изменения базы данных с момента последнего полного бэкапа."))
+            {
+                return;
+            }
+
             try
             {
                 IsBackupBusy = true;
@@ -482,6 +492,11 @@ namespace MuseumClient.ViewModels
             if (SelectedBackup == null)
             {
                 InfoService.Show("Выберите резервную копию.");
+                return;
+            }
+
+            if (!ConfirmService.Show($"Восстановить резервную копию?\n\n{SelectedBackup.BaseName}\n\nТекущая база данных будет заменена."))
+            {
                 return;
             }
 
@@ -516,6 +531,11 @@ namespace MuseumClient.ViewModels
             if (SelectedBackup == null)
             {
                 InfoService.Show("Выберите резервную копию.");
+                return;
+            }
+
+            if (!ConfirmService.ConfirmDelete($"резервную копию \"{SelectedBackup.BaseName}\""))
+            {
                 return;
             }
 

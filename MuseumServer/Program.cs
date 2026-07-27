@@ -24,6 +24,9 @@ namespace MuseumServer
             // Add services
             builder.Services.AddSingleton<SessionService>();
             builder.Services.AddHostedService<SessionCleanupService>();
+            builder.Services.AddSingleton<BackupService>();
+            builder.Services.AddHostedService<BackupSchedulerService>();
+
             builder.Services.AddScoped<ExhibitService>();
             builder.Services.AddScoped<DocumentService>();
             builder.Services.AddScoped<MediaFileService>();

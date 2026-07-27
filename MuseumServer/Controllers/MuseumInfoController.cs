@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MuseumServer.Attributes;
-using MuseumServer.DTO;
+using MuseumServer.DTOs;
 using MuseumServer.Services;
 
 namespace MuseumServer.Controllers

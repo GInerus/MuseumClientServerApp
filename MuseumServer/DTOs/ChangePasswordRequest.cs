@@ -1,4 +1,4 @@
-﻿namespace MuseumServer.DTO
+﻿namespace MuseumServer.DTOs
 {
     public class ChangePasswordRequest
     {

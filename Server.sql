@@ -109,14 +109,33 @@ CREATE TABLE MuseumInfo
 (
     MuseumInfoId INT IDENTITY(1,1) PRIMARY KEY,
     Description NVARCHAR(MAX) NULL,
-    AdminPasswordHash NVARCHAR(500) NOT NULL
+    AdminPasswordHash NVARCHAR(500) NOT NULL,
+
+    BackupFullDayOfWeek INT NOT NULL DEFAULT(0),
+    BackupFullTime TIME NOT NULL DEFAULT('03:00:00'),
+    BackupDifferentialTime TIME NOT NULL DEFAULT('03:00:00'),
+    BackupRetentionDays INT NOT NULL DEFAULT(30)
 );
 GO
 
 -- Начальная строка — переносим сюда текущий текст и пароль по умолчанию
-INSERT INTO MuseumInfo (Description, AdminPasswordHash) VALUES (
-N'Описание музея',
-N'$2a$11$ScyZQGCeneP09uny0pVNCuewMJLP.7axZej92UpqdBTiCiVOeH.5u'
+INSERT INTO MuseumInfo 
+(
+    Description, 
+    AdminPasswordHash, 
+    BackupFullDayOfWeek, 
+    BackupFullTime, 
+    BackupDifferentialTime, 
+    BackupRetentionDays
+) 
+VALUES 
+(
+N'Описание музея', 
+N'$2a$11$ScyZQGCeneP09uny0pVNCuewMJLP.7axZej92UpqdBTiCiVOeH.5u', 
+0, 
+'03:00:00', 
+'03:00:00', 
+30
 );
 GO
 

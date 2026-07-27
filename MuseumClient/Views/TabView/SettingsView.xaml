@@ -144,7 +144,7 @@
                         </StackPanel>
                     </Button>
 
-                    <!-- 📜 Журнал действий (только админ, пока заглушка) -->
+                    <!-- 📜 Журнал действий (только админ) -->
                     <Button Style="{StaticResource SettingsCardButtonStyle}"
                             Margin="0,0,0,12"
                             Command="{Binding SelectSectionCommand}"
@@ -155,7 +155,28 @@
                             <TextBlock Text="История изменений в системе" Foreground="#6B7280" FontSize="13" Margin="0,4,0,0"/>
                         </StackPanel>
                     </Button>
-                    
+
+                    <!-- 📜 Бекап панель (только админ) -->
+                    <Button Style="{StaticResource SettingsCardButtonStyle}"
+                            Margin="0,0,0,12"
+                            Command="{Binding SelectSectionCommand}"
+                            CommandParameter="Backup"
+                            Visibility="{Binding CanEdit, Converter={StaticResource BoolToVisibilityConverter}}">
+
+                        <StackPanel>
+                            <TextBlock Text="💾 Резервное копирование"
+                                       FontSize="16"
+                                       FontWeight="SemiBold"
+                                       Foreground="#1F2937"/>
+
+                            <TextBlock Text="Создание и восстановление резервных копий"
+                                       Foreground="#6B7280"
+                                       FontSize="13"
+                                       Margin="0,4,0,0"/>
+                        </StackPanel>
+
+                    </Button>
+
                 </StackPanel>
 
                 <!-- ========================= -->
@@ -343,6 +364,175 @@
                                     </DataTemplate>
                                 </ItemsControl.ItemTemplate>
                             </ItemsControl>
+
+                        </StackPanel>
+
+                    </Border>
+
+                </StackPanel>
+
+                <!-- ========================= -->
+                <!-- РЕЗЕРВНОЕ КОПИРОВАНИЕ -->
+                <!-- ========================= -->
+
+                <StackPanel>
+
+                    <StackPanel.Style>
+                        <Style TargetType="StackPanel">
+                            <Setter Property="Visibility"
+                                    Value="Collapsed"/>
+
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding SelectedSection}"
+                                            Value="Backup">
+                                    <Setter Property="Visibility"
+                                            Value="Visible"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </StackPanel.Style>
+
+                    <Button Content="← Назад"
+                            Style="{StaticResource BackButtonStyle}"
+                            HorizontalAlignment="Left"
+                            Margin="0,0,0,15"
+                            Command="{Binding BackToMenuCommand}"/>
+
+                    <Border Background="White"
+                            CornerRadius="16"
+                            Padding="20"
+                            BorderBrush="#E5E7EB"
+                            BorderThickness="2">
+
+                        <StackPanel>
+
+                            <TextBlock Text="💾 Резервное копирование"
+                                       FontSize="18"
+                                       FontWeight="SemiBold"
+                                       Margin="0,0,0,20"/>
+
+                            <WrapPanel Margin="0,0,0,20">
+
+                                <Button Content="Полный бэкап"
+                                        Width="160"
+                                        Margin="0,0,10,0"
+                                        Command="{Binding CreateFullBackupCommand}"/>
+
+                                <Button Content="Разностный"
+                                        Width="160"
+                                        Margin="0,0,10,0"
+                                        Command="{Binding CreateDifferentialBackupCommand}"/>
+
+                                <Button Content="Обновить"
+                                        Width="120"
+                                        Command="{Binding RefreshBackupsCommand}"/>
+
+                            </WrapPanel>
+
+                            <CheckBox Content="Восстанавливать медиафайлы"
+                                      IsChecked="{Binding RestoreMedia}"
+                                      Margin="0,0,0,15"/>
+
+                            <DataGrid ItemsSource="{Binding Backups}"
+                                      SelectedItem="{Binding SelectedBackup}"
+                                      AutoGenerateColumns="False"
+                                      Height="280"
+                                      CanUserAddRows="False"
+                                      IsReadOnly="True">
+
+                                <DataGrid.Columns>
+
+                                    <DataGridTextColumn Header="Дата"
+                                                        Binding="{Binding CreatedAtDisplay}"
+                                                        Width="180"/>
+
+                                    <DataGridTextColumn Header="Тип"
+                                                        Binding="{Binding BackupTypeDisplay}"
+                                                        Width="120"/>
+
+                                    <DataGridTextColumn Header="БД"
+                                                        Binding="{Binding DatabaseSizeDisplay}"
+                                                        Width="120"/>
+
+                                    <DataGridTextColumn Header="Медиа"
+                                                        Binding="{Binding MediaSizeDisplay}"
+                                                        Width="120"/>
+
+                                </DataGrid.Columns>
+
+                            </DataGrid>
+
+                            <WrapPanel Margin="0,15,0,20">
+
+                                <Button Content="Восстановить"
+                                        Width="150"
+                                        Margin="0,0,10,0"
+                                        Command="{Binding RestoreBackupCommand}"/>
+
+                                <Button Content="Удалить"
+                                        Width="120"
+                                        Command="{Binding DeleteBackupCommand}"/>
+
+                            </WrapPanel>
+
+                            <Separator Margin="0,10"/>
+
+                            <TextBlock Text="Настройки автоматического резервного копирования"
+                                       FontWeight="SemiBold"
+                                       Margin="0,15,0,10"/>
+
+                            <Grid>
+
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="220"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
+
+                                <TextBlock Grid.Row="0"
+                                           Text="День полного бэкапа"/>
+
+                                <TextBox Grid.Row="0"
+                                         Grid.Column="1"
+                                         Margin="10,0,0,5"
+                                         Text="{Binding BackupSettings.BackupFullDayOfWeek}"/>
+
+                                <TextBlock Grid.Row="1"
+                                           Text="Время полного"/>
+
+                                <TextBox Grid.Row="1"
+                                         Grid.Column="1"
+                                         Margin="10,0,0,5"
+                                         Text="{Binding BackupSettings.BackupFullTime}"/>
+
+                                <TextBlock Grid.Row="2"
+                                            Text="Время разностного"/>
+
+                                <TextBox Grid.Row="2"
+                                         Grid.Column="1"
+                                         Margin="10,0,0,5"
+                                         Text="{Binding BackupSettings.BackupDifferentialTime}"/>
+
+                                <TextBlock Grid.Row="3"
+                   Text="Хранить дней"/>
+
+                                <TextBox Grid.Row="3"
+                                         Grid.Column="1"
+                                         Margin="10,0,0,5"
+                                         Text="{Binding BackupSettings.BackupRetentionDays}"/>
+
+                            </Grid>
+
+                            <Button Content="Сохранить настройки"
+                                    Width="200"
+                                    Margin="0,15,0,0"
+                                    Command="{Binding SaveBackupSettingsCommand}"/>
 
                         </StackPanel>
 

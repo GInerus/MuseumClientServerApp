@@ -6,6 +6,7 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Reflection;
 using System.Threading.Tasks;
+using System.Linq;
 
 namespace MuseumClient.ViewModels
 {
@@ -208,6 +209,12 @@ namespace MuseumClient.ViewModels
                     {
                         await LoadLogsAsync();
                     }
+
+                    if (section == "Backup")
+                    {
+                        await LoadBackupsAsync();
+                        await LoadBackupSettingsAsync();
+                    }
                 }
             });
 
@@ -225,6 +232,24 @@ namespace MuseumClient.ViewModels
                 return Task.CompletedTask;
             });
 
+            CreateFullBackupCommand =
+                new RelayCommand(async _ => await CreateFullBackupAsync());
+
+            CreateDifferentialBackupCommand =
+                new RelayCommand(async _ => await CreateDifferentialBackupAsync());
+
+            RefreshBackupsCommand =
+                new RelayCommand(async _ => await LoadBackupsAsync());
+
+            RestoreBackupCommand =
+                new RelayCommand(async _ => await RestoreBackupAsync());
+
+            DeleteBackupCommand =
+                new RelayCommand(async _ => await DeleteBackupAsync());
+
+            SaveBackupSettingsCommand =
+                new RelayCommand(async _ => await SaveBackupSettingsAsync());
+
         }
 
         private void OnAuthChanged()
@@ -233,8 +258,10 @@ namespace MuseumClient.ViewModels
 
             // если права пропали (например, вышли из админки), а пользователь
             // был в закрытом разделе — возвращаем в меню
-            if (!CanEdit && (SelectedSection == "Password" || SelectedSection == "Log"))
+            if (!CanEdit && (SelectedSection == "Password" || SelectedSection == "Log" || SelectedSection == "Backup"))
+            {
                 SelectedSection = "Menu";
+            }
         }
 
         private async Task ChangePasswordAsync()
@@ -300,6 +327,246 @@ namespace MuseumClient.ViewModels
             finally
             {
                 IsSaving = false;
+            }
+        }
+
+        // ===== Резервное копирование =====
+
+        public ObservableCollection<BackupPointDto> Backups { get; } = new();
+
+        private BackupPointDto? _selectedBackup;
+        public BackupPointDto? SelectedBackup
+        {
+            get => _selectedBackup;
+            set
+            {
+                _selectedBackup = value;
+                OnPropertyChanged(nameof(SelectedBackup));
+            }
+        }
+
+        private BackupSettingsDto _backupSettings = new();
+        public BackupSettingsDto BackupSettings
+        {
+            get => _backupSettings;
+            set
+            {
+                _backupSettings = value;
+                OnPropertyChanged(nameof(BackupSettings));
+            }
+        }
+
+        private bool _restoreMedia = true;
+        public bool RestoreMedia
+        {
+            get => _restoreMedia;
+            set
+            {
+                _restoreMedia = value;
+                OnPropertyChanged(nameof(RestoreMedia));
+            }
+        }
+
+        private bool _isBackupBusy;
+        public bool IsBackupBusy
+        {
+            get => _isBackupBusy;
+            set
+            {
+                _isBackupBusy = value;
+                OnPropertyChanged(nameof(IsBackupBusy));
+            }
+        }
+
+        // Список команд
+
+        public RelayCommand CreateFullBackupCommand { get; }
+        public RelayCommand CreateDifferentialBackupCommand { get; }
+        public RelayCommand RefreshBackupsCommand { get; }
+        public RelayCommand RestoreBackupCommand { get; }
+        public RelayCommand DeleteBackupCommand { get; }
+        public RelayCommand SaveBackupSettingsCommand { get; }
+
+        private async Task LoadBackupsAsync()
+        {
+            try
+            {
+                IsBackupBusy = true;
+
+                var response = await _apiService.GetAsync<BackupListResponse>("Backup");
+
+                Backups.Clear();
+
+                if (response?.Data != null)
+                {
+                    foreach (var item in response.Data.OrderByDescending(x => x.CreatedAt))
+                    {
+                        Backups.Add(item);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                InfoService.Show($"Ошибка загрузки резервных копий:\n{ex.Message}");
+            }
+            finally
+            {
+                IsBackupBusy = false;
+            }
+        }
+
+        private async Task LoadBackupSettingsAsync()
+        {
+            try
+            {
+                var response = await _apiService.GetAsync<BackupSettingsResponse>("Backup/settings");
+
+                if (response?.Data != null)
+                    BackupSettings = response.Data;
+            }
+            catch (Exception ex)
+            {
+                InfoService.Show($"Ошибка загрузки настроек:\n{ex.Message}");
+            }
+        }
+
+        private async Task CreateFullBackupAsync()
+        {
+            try
+            {
+                IsBackupBusy = true;
+
+                await _apiService.PostAsync<object>(
+                    "Backup/full",
+                    new { });
+
+                await LoadBackupsAsync();
+
+                InfoService.Show("Полный резервный бэкап успешно создан.");
+            }
+            catch (Exception ex)
+            {
+                InfoService.Show($"Ошибка создания полного бэкапа:\n{ex.Message}");
+            }
+            finally
+            {
+                IsBackupBusy = false;
+            }
+        }
+        private async Task CreateDifferentialBackupAsync()
+        {
+            try
+            {
+                IsBackupBusy = true;
+
+                await _apiService.PostAsync<object>(
+                    "Backup/differential",
+                    new { });
+
+                await LoadBackupsAsync();
+
+                InfoService.Show("Разностный резервный бэкап успешно создан.");
+            }
+            catch (Exception ex)
+            {
+                InfoService.Show($"Ошибка создания разностного бэкапа:\n{ex.Message}");
+            }
+            finally
+            {
+                IsBackupBusy = false;
+            }
+        }
+
+        private async Task RestoreBackupAsync()
+        {
+            if (SelectedBackup == null)
+            {
+                InfoService.Show("Выберите резервную копию.");
+                return;
+            }
+
+            try
+            {
+                IsBackupBusy = true;
+
+                await _apiService.PostAsync<object>(
+                    "Backup/restore",
+                    new RestoreBackupRequest
+                    {
+                        BaseName = SelectedBackup.BaseName,
+                        RestoreMedia = RestoreMedia
+                    });
+
+                InfoService.Show("Восстановление завершено.");
+
+                await LoadBackupsAsync();
+            }
+            catch (Exception ex)
+            {
+                InfoService.Show($"Ошибка восстановления:\n{ex.Message}");
+            }
+            finally
+            {
+                IsBackupBusy = false;
+            }
+        }
+
+        private async Task DeleteBackupAsync()
+        {
+            if (SelectedBackup == null)
+            {
+                InfoService.Show("Выберите резервную копию.");
+                return;
+            }
+
+            try
+            {
+                IsBackupBusy = true;
+
+                await _apiService.DeleteAsync(
+                    $"Backup/{SelectedBackup.BaseName}");
+
+                Backups.Remove(SelectedBackup);
+
+                SelectedBackup = null;
+
+                InfoService.Show("Резервная копия удалена.");
+            }
+            catch (Exception ex)
+            {
+                InfoService.Show($"Ошибка удаления:\n{ex.Message}");
+            }
+            finally
+            {
+                IsBackupBusy = false;
+            }
+        }
+
+        private async Task SaveBackupSettingsAsync()
+        {
+            try
+            {
+                IsBackupBusy = true;
+
+                await _apiService.PutAsync<object>(
+                    "Backup/settings",
+                    new UpdateBackupSettingsRequest
+                    {
+                        BackupRetentionDays = BackupSettings.BackupRetentionDays,
+                        BackupFullDayOfWeek = BackupSettings.BackupFullDayOfWeek,
+                        BackupFullTime = BackupSettings.BackupFullTime,
+                        BackupDifferentialTime = BackupSettings.BackupDifferentialTime
+                    });
+
+                InfoService.Show("Настройки резервного копирования сохранены.");
+            }
+            catch (Exception ex)
+            {
+                InfoService.Show($"Ошибка сохранения:\n{ex.Message}");
+            }
+            finally
+            {
+                IsBackupBusy = false;
             }
         }
 

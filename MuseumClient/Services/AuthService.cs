@@ -121,6 +121,11 @@ namespace MuseumClient.Services
                 System.Diagnostics.Debug.WriteLine("TIMEOUT: " + ex);
                 return AuthResult.ServerUnavailable;
             }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine("UNEXPECTED ERROR: " + ex);
+                return AuthResult.ServerUnavailable;
+            }
         }
 
         public void Logout()

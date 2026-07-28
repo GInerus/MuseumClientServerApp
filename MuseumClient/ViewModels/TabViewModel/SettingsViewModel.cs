@@ -461,21 +461,25 @@ namespace MuseumClient.ViewModels
         private async Task CreateDifferentialBackupAsync()
         {
             if (!ConfirmService.Show("Создать разностный резервный бэкап?\n\nБудут сохранены изменения базы данных с момента последнего полного бэкапа."))
-            {
                 return;
-            }
 
             try
             {
                 IsBackupBusy = true;
 
-                await _apiService.PostAsync<object>(
-                    "Backup/differential",
-                    new { });
+                var (success, result) = await _apiService.PostAsyncSafe<BackupOperationResponse>("Backup/differential", new { });
 
-                await LoadBackupsAsync();
-
-                InfoService.Show("Разностный резервный бэкап успешно создан.");
+                if (success)
+                {
+                    await LoadBackupsAsync();
+                    InfoService.Show("Разностный резервный бэкап успешно создан.");
+                }
+                else
+                {
+                    InfoService.Show(result?.Message == "FULL_BACKUP_REQUIRED"
+                        ? "Сначала нужно создать хотя бы один полный бэкап."
+                        : "Не удалось создать разностный бэкап.");
+                }
             }
             catch (Exception ex)
             {

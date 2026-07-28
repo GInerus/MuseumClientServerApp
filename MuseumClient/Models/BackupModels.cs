@@ -30,7 +30,7 @@ namespace MuseumClient.Models
         public long DatabaseSizeBytes { get; set; }
 
         [JsonPropertyName("mediaSizeBytes")]
-        public long MediaSizeBytes { get; set; }
+        public long? MediaSizeBytes { get; set; }
 
         public string BackupTypeDisplay =>
             BackupType == "Full"
@@ -42,7 +42,9 @@ namespace MuseumClient.Models
 
         public string DatabaseSizeDisplay => FormatSize(DatabaseSizeBytes);
 
-        public string MediaSizeDisplay => FormatSize(MediaSizeBytes);
+        public string MediaSizeDisplay => MediaSizeBytes.HasValue
+            ? FormatSize(MediaSizeBytes.Value)
+            : "—";
 
         private static string FormatSize(long bytes)
         {

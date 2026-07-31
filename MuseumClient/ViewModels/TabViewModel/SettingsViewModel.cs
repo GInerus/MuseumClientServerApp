@@ -16,6 +16,8 @@ namespace MuseumClient.ViewModels
         private readonly AuthService _auth;
         private readonly ContentHubViewModel _hub;
 
+        public ReportsViewModel ReportsVM { get; }
+
         private bool _canEdit;
         public bool CanEdit
         {
@@ -185,6 +187,8 @@ namespace MuseumClient.ViewModels
         {
             _hub = hub;
 
+            ReportsVM = hub.ReportsVM;
+
             _apiService = new ApiService(
                 new ConfigService().Server,
                 AuthService.Instance());
@@ -200,7 +204,7 @@ namespace MuseumClient.ViewModels
                 {
                     // "Password" и "Log" — только для админа. Проверяем и тут,
                     // а не только скрытием кнопки в XAML — на случай прямого вызова.
-                    if ((section == "Password" || section == "Log") && !CanEdit)
+                    if ((section == "Password" || section == "Log" || section == "Backup" || section == "Reports") && !CanEdit)
                         return;
 
                     SelectedSection = section;
@@ -258,7 +262,7 @@ namespace MuseumClient.ViewModels
 
             // если права пропали (например, вышли из админки), а пользователь
             // был в закрытом разделе — возвращаем в меню
-            if (!CanEdit && (SelectedSection == "Password" || SelectedSection == "Log" || SelectedSection == "Backup"))
+            if (!CanEdit && (SelectedSection == "Password" || SelectedSection == "Log" || SelectedSection == "Backup" || SelectedSection == "Reports"))
             {
                 SelectedSection = "Menu";
             }

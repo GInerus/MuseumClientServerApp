@@ -15,10 +15,12 @@ namespace MuseumClient.ViewModels.Details
     {
         // Document — обычная статья из БД (Document/{id})
         // Guide     — статический файл руководства (system/guide), без метаданных в БД
+        // Report    — уже сгенерированный локальный PDF-отчёт, без сетевого запроса на загрузку файла
         private enum DocumentSource
         {
             Document,
-            Guide
+            Guide,
+            Report
         }
 
         public event PropertyChangedEventHandler? PropertyChanged;
@@ -29,6 +31,7 @@ namespace MuseumClient.ViewModels.Details
         private readonly ApiService _apiService;
         private readonly int _id;
         private readonly DocumentSource _source;
+        private string? _reportFilePath;
 
         private string _fileType = "";
         public string FileType
@@ -112,7 +115,7 @@ namespace MuseumClient.ViewModels.Details
         }
 
         public string Subtitle => "Статья музея";
-        public bool ShowSubtitle => _source != DocumentSource.Guide;
+        public bool ShowSubtitle => _source == DocumentSource.Document;
 
         private string? _htmlPath;
         public string? HtmlPath
@@ -155,6 +158,18 @@ namespace MuseumClient.ViewModels.Details
             var vm = new DocumentViewerViewModel(0, "pdf", DocumentSource.Guide)
             {
                 Title = "Руководство пользователя"
+            };
+
+            return vm;
+        }
+
+        // Третий режим — уже сгенерированный локальный PDF-отчёт
+        public static DocumentViewerViewModel CreateForReport(string localPdfPath, string title)
+        {
+            var vm = new DocumentViewerViewModel(0, "pdf", DocumentSource.Report)
+            {
+                Title = title,
+                _reportFilePath = localPdfPath
             };
 
             return vm;
@@ -206,6 +221,22 @@ namespace MuseumClient.ViewModels.Details
 
         private async Task LoadAsync()
         {
+            // Report: файл уже лежит локально (во временной папке), сеть не нужна
+            if (_source == DocumentSource.Report)
+            {
+                if (!string.IsNullOrEmpty(_reportFilePath) && File.Exists(_reportFilePath))
+                {
+                    _rawFile = await File.ReadAllBytesAsync(_reportFilePath);
+                    LocalPdfPath = _reportFilePath;
+                }
+                else
+                {
+                    Status = "Файл отчёта не найден";
+                }
+
+                return;
+            }
+
             var streamEndpoint = _source == DocumentSource.Guide
                 ? "system/guide"
                 : $"Document/stream/{_id}";

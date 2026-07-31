@@ -10,6 +10,8 @@ namespace MuseumServer
     {
         public static void Main(string[] args)
         {
+            QuestPDF.Settings.License = QuestPDF.Infrastructure.LicenseType.Community;
+
             var builder = WebApplication.CreateBuilder(args);
 
             builder.WebHost.ConfigureKestrel(options =>
@@ -36,6 +38,7 @@ namespace MuseumServer
             builder.Services.AddScoped<ImageProcessor>();
             builder.Services.AddScoped<VideoProcessor>();
             builder.Services.AddSingleton<LoggingService>();
+            builder.Services.AddScoped<ReportService>();
 
             builder.Services.Configure<FormOptions>(options =>
             {

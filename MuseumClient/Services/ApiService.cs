@@ -139,5 +139,13 @@ namespace MuseumClient.Services
             var data = await response.Content.ReadFromJsonAsync<T>();
             return (response.IsSuccessStatusCode, data);
         }
+
+        public async Task<byte[]> PostBytesAsync(string endpoint, object payload)
+        {
+            ApplyHeaders();
+            var response = await _client.PostAsJsonAsync(BuildUrl(endpoint), payload);
+            response.EnsureSuccessStatusCode();
+            return await response.Content.ReadAsByteArrayAsync();
+        }
     }
 }

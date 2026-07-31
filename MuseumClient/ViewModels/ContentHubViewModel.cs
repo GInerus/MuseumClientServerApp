@@ -62,6 +62,7 @@ namespace MuseumClient.ViewModels
         public MediaImagesViewModel MediaImagesVM { get; }
         public MediaVideosViewModel MediaVideosVM { get; }
         public SettingsViewModel SettingsVM { get; }
+        public ReportsViewModel ReportsVM { get; }
 
         private readonly MainViewModel _mainVM;
 
@@ -88,6 +89,7 @@ namespace MuseumClient.ViewModels
             DepartmentsVM = new DepartmentsViewModel(this);
             MediaImagesVM = new MediaImagesViewModel(this);
             MediaVideosVM = new MediaVideosViewModel(this);
+            ReportsVM = new ReportsViewModel(this);
             SettingsVM = new SettingsViewModel(this);
 
             // Команды
@@ -239,6 +241,11 @@ namespace MuseumClient.ViewModels
         public void ShowGuide()
         {
             CurrentTabView = DocumentViewerViewModel.CreateForGuide();
+        }
+
+        public void ShowReportPdf(string localPdfPath, string title)
+        {
+            CurrentTabView = ViewModels.Details.DocumentViewerViewModel.CreateForReport(localPdfPath, title);
         }
 
         public event PropertyChangedEventHandler? PropertyChanged;

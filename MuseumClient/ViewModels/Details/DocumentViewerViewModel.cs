@@ -31,7 +31,8 @@ namespace MuseumClient.ViewModels.Details
         private readonly ApiService _apiService;
         private readonly int _id;
         private readonly DocumentSource _source;
-        private string? _reportFilePath;
+
+        private byte[]? _initialBytes;
 
         private string _fileType = "";
         public string FileType
@@ -149,7 +150,10 @@ namespace MuseumClient.ViewModels.Details
 
             DownloadCommand = new RelayCommand(async _ => await DownloadAsync());
 
-            _ = InitializeAsync();
+            if (_source != DocumentSource.Report)
+            {
+                _ = InitializeAsync();
+            }
         }
 
         // Второй режим — руководство пользователя (system/guide), без Document/{id}
@@ -164,13 +168,15 @@ namespace MuseumClient.ViewModels.Details
         }
 
         // Третий режим — уже сгенерированный локальный PDF-отчёт
-        public static DocumentViewerViewModel CreateForReport(string localPdfPath, string title)
+        public static DocumentViewerViewModel CreateForReport(byte[] pdfBytes, string title)
         {
             var vm = new DocumentViewerViewModel(0, "pdf", DocumentSource.Report)
             {
                 Title = title,
-                _reportFilePath = localPdfPath
+                _initialBytes = pdfBytes
             };
+
+            _ = vm.InitializeAsync();
 
             return vm;
         }
@@ -222,26 +228,20 @@ namespace MuseumClient.ViewModels.Details
         private async Task LoadAsync()
         {
             // Report: файл уже лежит локально (во временной папке), сеть не нужна
+            byte[] bytes;
+
             if (_source == DocumentSource.Report)
             {
-                if (!string.IsNullOrEmpty(_reportFilePath) && File.Exists(_reportFilePath))
-                {
-                    _rawFile = await File.ReadAllBytesAsync(_reportFilePath);
-                    LocalPdfPath = _reportFilePath;
-                }
-                else
-                {
-                    Status = "Файл отчёта не найден";
-                }
-
-                return;
+                bytes = _initialBytes!;
             }
+            else
+            {
+                var streamEndpoint = _source == DocumentSource.Guide
+                    ? "system/guide"
+                    : $"Document/stream/{_id}";
 
-            var streamEndpoint = _source == DocumentSource.Guide
-                ? "system/guide"
-                : $"Document/stream/{_id}";
-
-            var bytes = await _apiService.GetBytesAsync(streamEndpoint);
+                bytes = await _apiService.GetBytesAsync(streamEndpoint);
+            }
 
             _rawFile = bytes;
 
@@ -263,10 +263,14 @@ namespace MuseumClient.ViewModels.Details
                     }
                 case "pdf":
                     {
-                        var path = Path.Combine(Path.GetTempPath(), $"{TempBaseName}.pdf");
-                        File.WriteAllBytes(path, _rawFile!);
+                        var path = Path.Combine(
+                            Path.GetTempPath(),
+                            $"{TempBaseName}.pdf");
+
+                        File.WriteAllBytes(path, _rawFile);
 
                         LocalPdfPath = path;
+
                         break;
                     }
                 case "docx":

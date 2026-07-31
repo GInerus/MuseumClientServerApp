@@ -243,9 +243,9 @@ namespace MuseumClient.ViewModels
             CurrentTabView = DocumentViewerViewModel.CreateForGuide();
         }
 
-        public void ShowReportPdf(string localPdfPath, string title)
+        public void ShowReportPdf(byte[] pdfBytes, string title)
         {
-            CurrentTabView = ViewModels.Details.DocumentViewerViewModel.CreateForReport(localPdfPath, title);
+            CurrentTabView = DocumentViewerViewModel.CreateForReport(pdfBytes, title);
         }
 
         public event PropertyChangedEventHandler? PropertyChanged;

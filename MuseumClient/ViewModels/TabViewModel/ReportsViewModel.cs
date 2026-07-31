@@ -5,6 +5,7 @@ using System;
 using System.ComponentModel;
 using System.IO;
 using System.Threading.Tasks;
+using System.Windows;
 
 namespace MuseumClient.ViewModels
 {
@@ -171,13 +172,7 @@ namespace MuseumClient.ViewModels
                     includeImages = ExhibitsIncludeImages
                 });
 
-                var path = Path.Combine(
-                    Path.GetTempPath(),
-                    $"report_exhibits_{DateTime.Now:yyyyMMdd_HHmmss}.pdf");
-
-                await File.WriteAllBytesAsync(path, bytes);
-
-                _hub.ShowReportPdf(path, "Отчёт по экспонатам");
+                _hub.ShowReportPdf(bytes, "Отчёт по экспонатам");
             }
             catch (Exception ex)
             {

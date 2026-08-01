@@ -160,7 +160,7 @@
 
                         <StackPanel>
 
-                            <TextBlock Text="Настройки сервера"
+                            <TextBlock Text="Настройки адресов сервера"
                                        FontSize="16"
                                        FontWeight="SemiBold"
                                        Margin="0,0,0,12"/>

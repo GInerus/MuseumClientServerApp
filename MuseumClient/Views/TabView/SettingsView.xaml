@@ -598,9 +598,69 @@
                             </StackPanel>
                         </Button>
 
+                        <Button Style="{StaticResource SettingsCardButtonStyle}"
+                                Margin="0,0,0,12"
+                                Command="{Binding ReportsVM.SelectSectionCommand}"
+                                CommandParameter="Documents">
+                            <StackPanel>
+                                <TextBlock Text="📄 Отчёт по документам" FontSize="16" FontWeight="SemiBold" Foreground="#1F2937"/>
+                                <TextBlock Text="Список статей и документов по отделам" Foreground="#6B7280" FontSize="13" Margin="0,4,0,0"/>
+                            </StackPanel>
+                        </Button>
+
+                        <Button Style="{StaticResource SettingsCardButtonStyle}"
+                                Margin="0,0,0,12"
+                                Command="{Binding ReportsVM.SelectSectionCommand}"
+                                CommandParameter="Images">
+                            <StackPanel>
+                                <TextBlock Text="🖼 Отчёт по изображениям" FontSize="16" FontWeight="SemiBold" Foreground="#1F2937"/>
+                                <TextBlock Text="Каталог изображений с миниатюрами" Foreground="#6B7280" FontSize="13" Margin="0,4,0,0"/>
+                            </StackPanel>
+                        </Button>
+
+                        <Button Style="{StaticResource SettingsCardButtonStyle}"
+                                Margin="0,0,0,12"
+                                Command="{Binding ReportsVM.SelectSectionCommand}"
+                                CommandParameter="Videos">
+                            <StackPanel>
+                                <TextBlock Text="🎥 Отчёт по видео" FontSize="16" FontWeight="SemiBold" Foreground="#1F2937"/>
+                                <TextBlock Text="Список видеоматериалов по отделам" Foreground="#6B7280" FontSize="13" Margin="0,4,0,0"/>
+                            </StackPanel>
+                        </Button>
+
+                        <Button Style="{StaticResource SettingsCardButtonStyle}"
+                                Margin="0,0,0,12"
+                                Command="{Binding ReportsVM.SelectSectionCommand}"
+                                CommandParameter="Statistics">
+                            <StackPanel>
+                                <TextBlock Text="📊 Статистика музея" FontSize="16" FontWeight="SemiBold" Foreground="#1F2937"/>
+                                <TextBlock Text="Сводка по отделам, экспонатам и медиа" Foreground="#6B7280" FontSize="13" Margin="0,4,0,0"/>
+                            </StackPanel>
+                        </Button>
+
+                        <Button Style="{StaticResource SettingsCardButtonStyle}"
+                                Margin="0,0,0,12"
+                                Command="{Binding ReportsVM.SelectSectionCommand}"
+                                CommandParameter="Logs">
+                            <StackPanel>
+                                <TextBlock Text="📋 Журнал действий" FontSize="16" FontWeight="SemiBold" Foreground="#1F2937"/>
+                                <TextBlock Text="История операций в системе" Foreground="#6B7280" FontSize="13" Margin="0,4,0,0"/>
+                            </StackPanel>
+                        </Button>
+
+                        <Button Style="{StaticResource SettingsCardButtonStyle}"
+                                Margin="0,0,0,12"
+                                Command="{Binding ReportsVM.SelectSectionCommand}"
+                                CommandParameter="Combined">
+                            <StackPanel>
+                                <TextBlock Text="📑 Сводный отчёт" FontSize="16" FontWeight="SemiBold" Foreground="#1F2937"/>
+                                <TextBlock Text="Все разделы в одном PDF-документе" Foreground="#6B7280" FontSize="13" Margin="0,4,0,0"/>
+                            </StackPanel>
+                        </Button>
+
                     </StackPanel>
 
-                    <!-- Настройки отчёта по экспонатам -->
+                    <!-- Настройки: ЭКСПОНАТЫ -->
                     <StackPanel>
                         <StackPanel.Style>
                             <Style TargetType="StackPanel">
@@ -620,55 +680,24 @@
                                 Margin="0,0,0,15"
                                 Command="{Binding ReportsVM.BackToMenuCommand}"/>
 
-                        <Border Background="White"
-                                CornerRadius="16"
-                                Padding="20"
-                                BorderBrush="#E5E7EB"
-                                BorderThickness="2">
-
+                        <Border Background="White" CornerRadius="16" Padding="20" BorderBrush="#E5E7EB" BorderThickness="2">
                             <StackPanel>
-
-                                <TextBlock Text="🏺 Отчёт по экспонатам"
-                                            FontSize="18"
-                                            FontWeight="SemiBold"
-                                            Foreground="#1F2937"
-                                            Margin="0,0,0,10"/>
-
+                                <TextBlock Text="🏺 Отчёт по экспонатам" FontSize="18" FontWeight="SemiBold" Foreground="#1F2937" Margin="0,0,0,10"/>
                                 <TextBlock Foreground="#6B7280" FontSize="13" Margin="0,0,0,20">
-                                    <Run Text="Всего экспонатов в системе: "/>
+                                    <Run Text="Всего экспонатов: "/>
                                     <Run Text="{Binding ReportsVM.ExhibitsTotalCount, Mode=OneWay}" FontWeight="SemiBold"/>
                                 </TextBlock>
 
-                                <TextBlock Text="Сколько вывести (пусто = все)"
-                                           FontWeight="SemiBold"
-                                           FontSize="14"
-                                           Margin="0,0,0,6"/>
-
-                                <TextBox Height="36"
-                                         Width="150"
-                                         HorizontalAlignment="Left"
-                                         Margin="0,0,0,15"
+                                <TextBlock Text="Сколько вывести (пусто = все)" FontWeight="SemiBold" FontSize="14" Margin="0,0,0,6"/>
+                                <TextBox Height="36" Width="150" HorizontalAlignment="Left" Margin="0,0,0,15"
                                          Text="{Binding ReportsVM.ExhibitsLimitText, UpdateSourceTrigger=PropertyChanged}"/>
 
-                                <CheckBox Content="Компактный вид (таблица)"
-                                          IsChecked="{Binding ReportsVM.ExhibitsCompact}"
-                                          Margin="0,0,0,10"/>
+                                <CheckBox Content="Компактный вид (таблица)" IsChecked="{Binding ReportsVM.ExhibitsCompact}" Margin="0,0,0,10"/>
+                                <CheckBox Content="Включить миниатюры" IsChecked="{Binding ReportsVM.ExhibitsIncludeImages}" Margin="0,0,0,20"/>
 
-                                <CheckBox Content="Включить изображения (миниатюры)"
-                                          IsChecked="{Binding ReportsVM.ExhibitsIncludeImages}"
-                                          Margin="0,0,0,20"/>
-
-                                <Button Content="Сформировать отчёт"
-                                        Width="200"
-                                        Height="40"
-                                        HorizontalAlignment="Left"
-                                        Background="#4A90E2"
-                                        Foreground="White"
-                                        BorderThickness="0"
-                                        FontWeight="SemiBold"
-                                        Cursor="Hand"
+                                <Button Content="Сформировать отчёт" Width="200" Height="40" HorizontalAlignment="Left"
+                                        Background="#4A90E2" Foreground="White" BorderThickness="0" FontWeight="SemiBold" Cursor="Hand"
                                         Command="{Binding ReportsVM.GenerateExhibitsReportCommand}">
-
                                     <Button.Template>
                                         <ControlTemplate TargetType="Button">
                                             <Border Background="{TemplateBinding Background}" CornerRadius="8">
@@ -676,15 +705,286 @@
                                             </Border>
                                         </ControlTemplate>
                                     </Button.Template>
-
                                 </Button>
-
                             </StackPanel>
-
                         </Border>
-
                     </StackPanel>
 
+                    <!-- Настройки: ДОКУМЕНТЫ -->
+                    <StackPanel>
+                        <StackPanel.Style>
+                            <Style TargetType="StackPanel">
+                                <Setter Property="Visibility" Value="Collapsed"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding ReportsVM.SelectedSection}" Value="Documents">
+                                        <Setter Property="Visibility" Value="Visible"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </StackPanel.Style>
+
+                        <Button Content="← К отчётам" Style="{StaticResource BackButtonStyle}" Width="120"
+                                HorizontalAlignment="Left" Margin="0,0,0,15" Command="{Binding ReportsVM.BackToMenuCommand}"/>
+
+                        <Border Background="White" CornerRadius="16" Padding="20" BorderBrush="#E5E7EB" BorderThickness="2">
+                            <StackPanel>
+                                <TextBlock Text="📄 Отчёт по документам" FontSize="18" FontWeight="SemiBold" Foreground="#1F2937" Margin="0,0,0,10"/>
+                                <TextBlock Foreground="#6B7280" FontSize="13" Margin="0,0,0,20">
+                                    <Run Text="Всего документов: "/>
+                                    <Run Text="{Binding ReportsVM.DocumentsTotalCount, Mode=OneWay}" FontWeight="SemiBold"/>
+                                </TextBlock>
+
+                                <TextBlock Text="Сколько вывести (пусто = все)" FontWeight="SemiBold" FontSize="14" Margin="0,0,0,6"/>
+                                <TextBox Height="36" Width="150" HorizontalAlignment="Left" Margin="0,0,0,15"
+                                         Text="{Binding ReportsVM.DocumentsLimitText, UpdateSourceTrigger=PropertyChanged}"/>
+
+                                <CheckBox Content="Компактный вид (таблица)" IsChecked="{Binding ReportsVM.DocumentsCompact}" Margin="0,0,0,20"/>
+
+                                <Button Content="Сформировать отчёт" Width="200" Height="40" HorizontalAlignment="Left"
+                                        Background="#4A90E2" Foreground="White" BorderThickness="0" FontWeight="SemiBold" Cursor="Hand"
+                                        Command="{Binding ReportsVM.GenerateDocumentsReportCommand}">
+                                    <Button.Template>
+                                        <ControlTemplate TargetType="Button">
+                                            <Border Background="{TemplateBinding Background}" CornerRadius="8">
+                                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                            </Border>
+                                        </ControlTemplate>
+                                    </Button.Template>
+                                </Button>
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+
+                    <!-- Настройки: ИЗОБРАЖЕНИЯ -->
+                    <StackPanel>
+                        <StackPanel.Style>
+                            <Style TargetType="StackPanel">
+                                <Setter Property="Visibility" Value="Collapsed"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding ReportsVM.SelectedSection}" Value="Images">
+                                        <Setter Property="Visibility" Value="Visible"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </StackPanel.Style>
+
+                        <Button Content="← К отчётам" Style="{StaticResource BackButtonStyle}" Width="120"
+                                HorizontalAlignment="Left" Margin="0,0,0,15" Command="{Binding ReportsVM.BackToMenuCommand}"/>
+
+                        <Border Background="White" CornerRadius="16" Padding="20" BorderBrush="#E5E7EB" BorderThickness="2">
+                            <StackPanel>
+                                <TextBlock Text="🖼 Отчёт по изображениям" FontSize="18" FontWeight="SemiBold" Foreground="#1F2937" Margin="0,0,0,10"/>
+                                <TextBlock Foreground="#6B7280" FontSize="13" Margin="0,0,0,20">
+                                    <Run Text="Всего изображений: "/>
+                                    <Run Text="{Binding ReportsVM.ImagesTotalCount, Mode=OneWay}" FontWeight="SemiBold"/>
+                                </TextBlock>
+
+                                <TextBlock Text="Сколько вывести (пусто = все)" FontWeight="SemiBold" FontSize="14" Margin="0,0,0,6"/>
+                                <TextBox Height="36" Width="150" HorizontalAlignment="Left" Margin="0,0,0,15"
+                                         Text="{Binding ReportsVM.ImagesLimitText, UpdateSourceTrigger=PropertyChanged}"/>
+
+                                <CheckBox Content="Компактный вид (таблица)" IsChecked="{Binding ReportsVM.ImagesCompact}" Margin="0,0,0,10"/>
+                                <CheckBox Content="Включить миниатюры" IsChecked="{Binding ReportsVM.ImagesIncludeImages}" Margin="0,0,0,20"/>
+
+                                <Button Content="Сформировать отчёт" Width="200" Height="40" HorizontalAlignment="Left"
+                                        Background="#4A90E2" Foreground="White" BorderThickness="0" FontWeight="SemiBold" Cursor="Hand"
+                                        Command="{Binding ReportsVM.GenerateImagesReportCommand}">
+                                    <Button.Template>
+                                        <ControlTemplate TargetType="Button">
+                                            <Border Background="{TemplateBinding Background}" CornerRadius="8">
+                                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                            </Border>
+                                        </ControlTemplate>
+                                    </Button.Template>
+                                </Button>
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+
+                    <!-- Настройки: ВИДЕО -->
+                    <StackPanel>
+                        <StackPanel.Style>
+                            <Style TargetType="StackPanel">
+                                <Setter Property="Visibility" Value="Collapsed"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding ReportsVM.SelectedSection}" Value="Videos">
+                                        <Setter Property="Visibility" Value="Visible"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </StackPanel.Style>
+
+                        <Button Content="← К отчётам" Style="{StaticResource BackButtonStyle}" Width="120"
+                                HorizontalAlignment="Left" Margin="0,0,0,15" Command="{Binding ReportsVM.BackToMenuCommand}"/>
+
+                        <Border Background="White" CornerRadius="16" Padding="20" BorderBrush="#E5E7EB" BorderThickness="2">
+                            <StackPanel>
+                                <TextBlock Text="🎥 Отчёт по видео" FontSize="18" FontWeight="SemiBold" Foreground="#1F2937" Margin="0,0,0,10"/>
+                                <TextBlock Foreground="#6B7280" FontSize="13" Margin="0,0,0,20">
+                                    <Run Text="Всего видео: "/>
+                                    <Run Text="{Binding ReportsVM.VideosTotalCount, Mode=OneWay}" FontWeight="SemiBold"/>
+                                </TextBlock>
+
+                                <TextBlock Text="Сколько вывести (пусто = все)" FontWeight="SemiBold" FontSize="14" Margin="0,0,0,6"/>
+                                <TextBox Height="36" Width="150" HorizontalAlignment="Left" Margin="0,0,0,15"
+                                         Text="{Binding ReportsVM.VideosLimitText, UpdateSourceTrigger=PropertyChanged}"/>
+
+                                <CheckBox Content="Компактный вид (таблица)" IsChecked="{Binding ReportsVM.VideosCompact}" Margin="0,0,0,20"/>
+
+                                <Button Content="Сформировать отчёт" Width="200" Height="40" HorizontalAlignment="Left"
+                                        Background="#4A90E2" Foreground="White" BorderThickness="0" FontWeight="SemiBold" Cursor="Hand"
+                                        Command="{Binding ReportsVM.GenerateVideosReportCommand}">
+                                    <Button.Template>
+                                        <ControlTemplate TargetType="Button">
+                                            <Border Background="{TemplateBinding Background}" CornerRadius="8">
+                                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                            </Border>
+                                        </ControlTemplate>
+                                    </Button.Template>
+                                </Button>
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+
+                    <!-- Настройки: СТАТИСТИКА -->
+                    <StackPanel>
+                        <StackPanel.Style>
+                            <Style TargetType="StackPanel">
+                                <Setter Property="Visibility" Value="Collapsed"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding ReportsVM.SelectedSection}" Value="Statistics">
+                                        <Setter Property="Visibility" Value="Visible"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </StackPanel.Style>
+
+                        <Button Content="← К отчётам" Style="{StaticResource BackButtonStyle}" Width="120"
+                                HorizontalAlignment="Left" Margin="0,0,0,15" Command="{Binding ReportsVM.BackToMenuCommand}"/>
+
+                        <Border Background="White" CornerRadius="16" Padding="20" BorderBrush="#E5E7EB" BorderThickness="2">
+                            <StackPanel>
+                                <TextBlock Text="📊 Статистика музея" FontSize="18" FontWeight="SemiBold" Foreground="#1F2937" Margin="0,0,0,20"/>
+
+                                <TextBlock Text="Показатели для включения в отчёт:" FontWeight="SemiBold" FontSize="14" Margin="0,0,0,10"/>
+                                <WrapPanel Margin="0,0,0,20">
+                                    <CheckBox Content="Отделы" IsChecked="{Binding ReportsVM.StatIncludeDepartments}" Margin="0,5,25,5"/>
+                                    <CheckBox Content="Экспонаты" IsChecked="{Binding ReportsVM.StatIncludeExhibits}" Margin="0,5,25,5"/>
+                                    <CheckBox Content="Документы" IsChecked="{Binding ReportsVM.StatIncludeDocuments}" Margin="0,5,25,5"/>
+                                    <CheckBox Content="Медиафайлы" IsChecked="{Binding ReportsVM.StatIncludeMediaFiles}" Margin="0,5,25,5"/>
+                                    <CheckBox Content="Разбивка по отделам" IsChecked="{Binding ReportsVM.StatIncludeExhibitBreakdown}" Margin="0,5,25,5"/>
+                                </WrapPanel>
+
+                                <Button Content="Сформировать отчёт" Width="200" Height="40" HorizontalAlignment="Left"
+                                        Background="#4A90E2" Foreground="White" BorderThickness="0" FontWeight="SemiBold" Cursor="Hand"
+                                        Command="{Binding ReportsVM.GenerateStatisticsReportCommand}">
+                                    <Button.Template>
+                                        <ControlTemplate TargetType="Button">
+                                            <Border Background="{TemplateBinding Background}" CornerRadius="8">
+                                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                            </Border>
+                                        </ControlTemplate>
+                                    </Button.Template>
+                                </Button>
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+
+                    <!-- Настройки: ЖУРНАЛ -->
+                    <StackPanel>
+                        <StackPanel.Style>
+                            <Style TargetType="StackPanel">
+                                <Setter Property="Visibility" Value="Collapsed"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding ReportsVM.SelectedSection}" Value="Logs">
+                                        <Setter Property="Visibility" Value="Visible"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </StackPanel.Style>
+
+                        <Button Content="← К отчётам" Style="{StaticResource BackButtonStyle}" Width="120"
+                                HorizontalAlignment="Left" Margin="0,0,0,15" Command="{Binding ReportsVM.BackToMenuCommand}"/>
+
+                        <Border Background="White" CornerRadius="16" Padding="20" BorderBrush="#E5E7EB" BorderThickness="2">
+                            <StackPanel>
+                                <TextBlock Text="📋 Журнал действий" FontSize="18" FontWeight="SemiBold" Foreground="#1F2937" Margin="0,0,0,10"/>
+                                <TextBlock Foreground="#6B7280" FontSize="13" Margin="0,0,0,20">
+                                    <Run Text="Всего записей: "/>
+                                    <Run Text="{Binding ReportsVM.LogsTotalCount, Mode=OneWay}" FontWeight="SemiBold"/>
+                                </TextBlock>
+
+                                <TextBlock Text="Сколько вывести (пусто = все)" FontWeight="SemiBold" FontSize="14" Margin="0,0,0,6"/>
+                                <TextBox Height="36" Width="150" HorizontalAlignment="Left" Margin="0,0,0,20"
+                                         Text="{Binding ReportsVM.LogsLimitText, UpdateSourceTrigger=PropertyChanged}"/>
+
+                                <Button Content="Сформировать отчёт" Width="200" Height="40" HorizontalAlignment="Left"
+                                        Background="#4A90E2" Foreground="White" BorderThickness="0" FontWeight="SemiBold" Cursor="Hand"
+                                        Command="{Binding ReportsVM.GenerateLogsReportCommand}">
+                                    <Button.Template>
+                                        <ControlTemplate TargetType="Button">
+                                            <Border Background="{TemplateBinding Background}" CornerRadius="8">
+                                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                            </Border>
+                                        </ControlTemplate>
+                                    </Button.Template>
+                                </Button>
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+
+                    <!-- Настройки: СВОДНЫЙ -->
+                    <StackPanel>
+                        <StackPanel.Style>
+                            <Style TargetType="StackPanel">
+                                <Setter Property="Visibility" Value="Collapsed"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding ReportsVM.SelectedSection}" Value="Combined">
+                                        <Setter Property="Visibility" Value="Visible"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </StackPanel.Style>
+
+                        <Button Content="← К отчётам" Style="{StaticResource BackButtonStyle}" Width="120"
+                                HorizontalAlignment="Left" Margin="0,0,0,15" Command="{Binding ReportsVM.BackToMenuCommand}"/>
+
+                        <Border Background="White" CornerRadius="16" Padding="20" BorderBrush="#E5E7EB" BorderThickness="2">
+                            <StackPanel>
+                                <TextBlock Text="📑 Сводный отчёт" FontSize="18" FontWeight="SemiBold" Foreground="#1F2937" Margin="0,0,0,10"/>
+                                <TextBlock Text="Все разделы в одном PDF-документе" Foreground="#6B7280" FontSize="13" Margin="0,0,0,20"/>
+
+                                <TextBlock Text="Включить разделы:" FontWeight="SemiBold" FontSize="14" Margin="0,0,0,10"/>
+                                <WrapPanel Margin="0,0,0,15">
+                                    <CheckBox Content="Экспонаты" IsChecked="{Binding ReportsVM.CombinedIncludeExhibits}" Margin="0,5,25,5"/>
+                                    <CheckBox Content="Документы" IsChecked="{Binding ReportsVM.CombinedIncludeDocuments}" Margin="0,5,25,5"/>
+                                    <CheckBox Content="Изображения" IsChecked="{Binding ReportsVM.CombinedIncludeImagesSection}" Margin="0,5,25,5"/>
+                                    <CheckBox Content="Видео" IsChecked="{Binding ReportsVM.CombinedIncludeVideos}" Margin="0,5,25,5"/>
+                                    <CheckBox Content="Статистика" IsChecked="{Binding ReportsVM.CombinedIncludeStatistics}" Margin="0,5,25,5"/>
+                                    <CheckBox Content="Журнал" IsChecked="{Binding ReportsVM.CombinedIncludeLogs}" Margin="0,5,25,5"/>
+                                </WrapPanel>
+
+                                <TextBlock Text="Количество записей (на все разделы)" FontWeight="SemiBold" FontSize="14" Margin="0,0,0,6"/>
+                                <TextBox Height="36" Width="150" HorizontalAlignment="Left" Margin="0,0,0,15"
+                                         Text="{Binding ReportsVM.CombinedLimitText, UpdateSourceTrigger=PropertyChanged}"/>
+
+                                <CheckBox Content="Компактный вид" IsChecked="{Binding ReportsVM.CombinedCompact}" Margin="0,0,0,10"/>
+                                <CheckBox Content="Включить миниатюры" IsChecked="{Binding ReportsVM.CombinedIncludeThumbnails}" Margin="0,0,0,20"/>
+
+                                <Button Content="Сформировать отчёт" Width="200" Height="40" HorizontalAlignment="Left"
+                                        Background="#4A90E2" Foreground="White" BorderThickness="0" FontWeight="SemiBold" Cursor="Hand"
+                                        Command="{Binding ReportsVM.GenerateCombinedReportCommand}">
+                                    <Button.Template>
+                                        <ControlTemplate TargetType="Button">
+                                            <Border Background="{TemplateBinding Background}" CornerRadius="8">
+                                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                            </Border>
+                                        </ControlTemplate>
+                                    </Button.Template>
+                                </Button>
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
                 </StackPanel>
 
 

@@ -1054,7 +1054,8 @@
         </ScrollViewer>
 
         <!-- ОВЕРЛЕЙ СОХРАНЕНИЯ -->
-        <Grid Panel.ZIndex="999"
+        <Grid Grid.Row="0" Grid.RowSpan="2"
+              Panel.ZIndex="999"
               Background="#66000000"
               Visibility="{Binding IsSaving, Converter={StaticResource BoolToVisibilityConverter}}">
 
@@ -1076,7 +1077,8 @@
         </Grid>
 
         <!-- ОВЕРЛЕЙ ОТЧЁТОВ -->
-        <Grid Panel.ZIndex="999"
+        <Grid Grid.Row="0" Grid.RowSpan="2"
+              Panel.ZIndex="999"
               Background="#66000000"
               Visibility="{Binding ReportsVM.IsBusy, Converter={StaticResource BoolToVisibilityConverter}}">
 

@@ -46,4 +46,63 @@
     <Resource Include="Resources\logo.png" />
   </ItemGroup>
 
+	<Target Name="CleanupLibVLC" AfterTargets="Publish">
+		<ItemGroup>
+			<!-- Удаляем win-arm64 целиком -->
+			<LibVLCFoldersToRemove Include="$(PublishDir)libvlc\win-arm64" />
+
+			<!-- Очистка win-x64 -->
+			<LibVLCFoldersToRemove Include="
+            $(PublishDir)libvlc\win-x64\hrtfs;
+            $(PublishDir)libvlc\win-x64\plugins\access_output;
+            $(PublishDir)libvlc\win-x64\plugins\audio_mixer;
+            $(PublishDir)libvlc\win-x64\plugins\d3d9;
+            $(PublishDir)libvlc\win-x64\plugins\d3d11;
+            $(PublishDir)libvlc\win-x64\plugins\gui;
+            $(PublishDir)libvlc\win-x64\plugins\keystore;
+            $(PublishDir)libvlc\win-x64\plugins\logger;
+            $(PublishDir)libvlc\win-x64\plugins\lua;
+            $(PublishDir)libvlc\win-x64\plugins\meta_engine;
+            $(PublishDir)libvlc\win-x64\plugins\misc;
+            $(PublishDir)libvlc\win-x64\plugins\mux;
+            $(PublishDir)libvlc\win-x64\plugins\packetizer;
+            $(PublishDir)libvlc\win-x64\plugins\services_discovery;
+            $(PublishDir)libvlc\win-x64\plugins\spu;
+            $(PublishDir)libvlc\win-x64\plugins\stream_extractor;
+            $(PublishDir)libvlc\win-x64\plugins\stream_out;
+            $(PublishDir)libvlc\win-x64\plugins\text_renderer;
+            $(PublishDir)libvlc\win-x64\plugins\video_chroma;
+            $(PublishDir)libvlc\win-x64\plugins\video_splitter;
+            $(PublishDir)libvlc\win-x64\plugins\visualization" />
+
+			<!-- Очистка win-x86 -->
+			<LibVLCFoldersToRemove Include="
+            $(PublishDir)libvlc\win-x86\hrtfs;
+            $(PublishDir)libvlc\win-x86\plugins\access_output;
+            $(PublishDir)libvlc\win-x86\plugins\audio_mixer;
+            $(PublishDir)libvlc\win-x86\plugins\d3d9;
+            $(PublishDir)libvlc\win-x86\plugins\d3d11;
+            $(PublishDir)libvlc\win-x86\plugins\gui;
+            $(PublishDir)libvlc\win-x86\plugins\keystore;
+            $(PublishDir)libvlc\win-x86\plugins\logger;
+            $(PublishDir)libvlc\win-x86\plugins\lua;
+            $(PublishDir)libvlc\win-x86\plugins\meta_engine;
+            $(PublishDir)libvlc\win-x86\plugins\misc;
+            $(PublishDir)libvlc\win-x86\plugins\mux;
+            $(PublishDir)libvlc\win-x86\plugins\packetizer;
+            $(PublishDir)libvlc\win-x86\plugins\services_discovery;
+            $(PublishDir)libvlc\win-x86\plugins\spu;
+            $(PublishDir)libvlc\win-x86\plugins\stream_extractor;
+            $(PublishDir)libvlc\win-x86\plugins\stream_out;
+            $(PublishDir)libvlc\win-x86\plugins\text_renderer;
+            $(PublishDir)libvlc\win-x86\plugins\video_chroma;
+            $(PublishDir)libvlc\win-x86\plugins\video_splitter;
+            $(PublishDir)libvlc\win-x86\plugins\visualization" />
+		</ItemGroup>
+
+		<RemoveDir Directories="@(LibVLCFoldersToRemove)" />
+
+		<Message Text="LibVLC cleanup completed." Importance="high" />
+	</Target>
+
 </Project>

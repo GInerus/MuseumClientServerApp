@@ -126,6 +126,10 @@
             <viewsDetails:AddVideoView/>
         </DataTemplate>
 
+        <DataTemplate DataType="{x:Type vm:SettingsViewModel}">
+            <views:SettingsView/>
+        </DataTemplate>
+
     </UserControl.Resources>
 
         <Grid Background="White">
@@ -308,6 +312,29 @@
                                             Value="#EEF2FF"/>
                                     </DataTrigger>
                                 </Style.Triggers>
+                            </Style>
+                        </Button.Style>
+                    </Button>
+
+                    <Button Content="⚙  Настройки"
+                            Command="{Binding ShowSettingsCommand}">
+                        <Button.Style>
+                            <Style BasedOn="{StaticResource SidebarButtonStyle}"
+                                   TargetType="Button">
+
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding SelectedMenu}"
+                                                 Value="Settings">
+
+                                        <Setter Property="Background"
+                                                Value="#4A70FF"/>
+
+                                        <Setter Property="Foreground"
+                                                Value="#EEF2FF"/>
+
+                                    </DataTrigger>
+                                </Style.Triggers>
+
                             </Style>
                         </Button.Style>
                     </Button>

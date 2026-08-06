@@ -17,15 +17,18 @@ namespace MuseumServer.Controllers
         private readonly ExhibitService _service;
         private readonly IFileService _fileService;
         private readonly ImageProcessor _imageProcessor;
+        private readonly LoggingService _logging;
 
         public ExhibitController(
             ExhibitService service,
             IFileService fileService,
-            ImageProcessor imageProcessor)
+            ImageProcessor imageProcessor,
+            LoggingService logging)
         {
             _service = service;
             _fileService = fileService;
             _imageProcessor = imageProcessor;
+            _logging = logging;
         }
 
 
@@ -104,6 +107,8 @@ namespace MuseumServer.Controllers
 
             var created = await _service.CreateExhibitAsync(exhibit);
 
+            await _logging.LogAsync("admin", "Create", "Exhibit", created.Name);
+
             return Ok(new { status = "ok", data = created });
         }
 
@@ -120,6 +125,8 @@ namespace MuseumServer.Controllers
             if (updated == null)
                 return NotFound(new { status = "error", message = "Exhibit not found" });
 
+            await _logging.LogAsync("admin", "Update", "Exhibit", updated.Name);
+
             return Ok(new { status = "ok", data = updated });
         }
 
@@ -128,9 +135,13 @@ namespace MuseumServer.Controllers
         [SessionAuthorize(adminOnly: true)]
         public async Task<IActionResult> Delete([FromHeader] string token, int id)
         {
+            var existing = await _service.GetExhibitEntityAsync(id);
+
             var deleted = await _service.DeleteExhibitAsync(id);
             if (!deleted)
                 return NotFound(new { status = "error", message = "Exhibit not found" });
+
+            await _logging.LogAsync("admin", "Delete", "Exhibit", existing?.Name);
 
             return Ok(new { status = "ok" });
         }

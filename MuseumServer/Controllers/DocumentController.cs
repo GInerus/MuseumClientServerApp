@@ -13,11 +13,13 @@ namespace MuseumServer.Controllers
     {
         private readonly DocumentService _service;
         private readonly IFileService _fileService;
+        private readonly LoggingService _logging;
 
-        public DocumentController(DocumentService service, IFileService fileService)
+        public DocumentController(DocumentService service, IFileService fileService, LoggingService logging)
         {
             _service = service;
             _fileService = fileService;
+            _logging = logging;
         }
 
         // GET: api/document
@@ -55,6 +57,9 @@ namespace MuseumServer.Controllers
             try
             {
                 var document = await _service.CreateDocumentAsync(request);
+
+                await _logging.LogAsync("admin", "Create", "Document", document.Title);
+
                 return Ok(new { status = "ok", data = document });
             }
             catch (ArgumentException ex)
@@ -68,10 +73,14 @@ namespace MuseumServer.Controllers
         [SessionAuthorize(adminOnly: true)]
         public async Task<IActionResult> Delete([FromHeader] string token, int id)
         {
+            var existing = await _service.GetDocumentEntityAsync(id);
+
             var deleted = await _service.DeleteDocumentWithFileAsync(id);
 
             if (!deleted)
                 return NotFound(new { status = "error", message = "Document not found" });
+
+            await _logging.LogAsync("admin", "Delete", "Document", existing?.Title);
 
             return Ok(new { status = "ok" });
         }

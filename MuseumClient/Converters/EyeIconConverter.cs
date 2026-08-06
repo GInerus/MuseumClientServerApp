@@ -3,7 +3,7 @@ using System;
 using System.Globalization;
 using System.Windows.Data;
 
-namespace MuseumClient.Helpers
+namespace MuseumClient.Converters
 {
     public class EyeGlyphConverter : IValueConverter
     {

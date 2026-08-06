@@ -8,19 +8,13 @@ namespace MuseumServer.Services
     public class SessionService
     {
         private readonly IDbContextFactory<MuseumContext> _dbFactory;
-        private readonly string _adminPasswordHash;
+        private readonly LoggingService _logging;
         private readonly TimeSpan _sessionLifetime = TimeSpan.FromHours(12);
 
-        public SessionService(IDbContextFactory<MuseumContext> dbFactory)
+        public SessionService(IDbContextFactory<MuseumContext> dbFactory, LoggingService logging)
         {
             _dbFactory = dbFactory;
-
-            var path = Path.Combine(AppContext.BaseDirectory, "Config", "password.txt");
-
-            if (!File.Exists(path))
-                throw new FileNotFoundException("Файл с паролем администратора не найден", path);
-
-            _adminPasswordHash = File.ReadAllText(path).Trim();
+            _logging = logging;
         }
 
         public string CreateSession(string userType)
@@ -59,19 +53,23 @@ namespace MuseumServer.Services
 
         public bool ValidateAdminPassword(string password)
         {
-            if (string.IsNullOrWhiteSpace(_adminPasswordHash))
-            {
-                return false;
-            }
-
-            //Console.WriteLine(BCrypt.Net.BCrypt.HashPassword(password));
-
             try
             {
-                var result = BCrypt.Net.BCrypt.Verify(password, _adminPasswordHash);
-                return result;
+                using var db = _dbFactory.CreateDbContext();
+
+                var museumInfo = db.MuseumInfo.FirstOrDefault();
+
+                if (museumInfo == null ||
+                    string.IsNullOrWhiteSpace(museumInfo.AdminPasswordHash))
+                {
+                    return false;
+                }
+
+                return BCrypt.Net.BCrypt.Verify(
+                    password,
+                    museumInfo.AdminPasswordHash);
             }
-            catch (Exception ex)
+            catch
             {
                 return false;
             }
@@ -99,6 +97,8 @@ namespace MuseumServer.Services
                 db.Sessions.RemoveRange(oldSessions);
                 db.SaveChanges();
                 Console.WriteLine($"Удалено сессий: {oldSessions.Count}");
+
+                _ = _logging.LogAsync("system", "SessionCleanup", "Session", $"Удалено сессий: {oldSessions.Count}");
             }
         }
     }

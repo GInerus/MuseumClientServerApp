@@ -185,56 +185,361 @@
                 <!-- INFO SECTION TITLE -->
                 <!-- ========================= -->
 
-                <TextBlock Text="О музее"
-                           FontSize="16"
+                <TextBlock FontSize="16"
                            FontWeight="Bold"
                            Margin="20,15,20,10"
-                           Foreground="#334155"/>
+                           Foreground="#334155">
+
+                    <TextBlock.Style>
+                        <Style TargetType="TextBlock">
+
+                            <Setter Property="Text"
+                                    Value="О музее"/>
+
+                            <Style.Triggers>
+
+                                <DataTrigger Binding="{Binding IsEditing}"
+                                         Value="True">
+
+                                    <Setter Property="Text"
+                                    Value="О музее (режим редактирования)"/>
+
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </TextBlock.Style>
+                </TextBlock>
 
                 <!-- ========================= -->
                 <!-- TEXT CARD -->
                 <!-- ========================= -->
 
                 <Border Margin="20,0,20,30"
-                        Padding="25"
-                        Background="White"
-                        CornerRadius="16"
-                        BorderThickness="2"
-                        BorderBrush="#DDD">
+                        Padding="5"
+                        CornerRadius="16">
+
+                    <Border.Style>
+                        <Style TargetType="Border">
+
+                            <Setter Property="Background" Value="White"/>
+                            <Setter Property="BorderBrush" Value="#DDD"/>
+                            <Setter Property="BorderThickness" Value="2"/>
+
+                            <Style.Triggers>
+
+                                <DataTrigger Binding="{Binding IsEditing}"
+                             Value="True">
+
+                                    <Setter Property="Background"
+                            Value="#F8FBFF"/>
+
+                                    <Setter Property="BorderBrush"
+                            Value="#4A90E2"/>
+
+                                    <Setter Property="BorderThickness"
+                            Value="2"/>
+
+                                </DataTrigger>
+
+                            </Style.Triggers>
+
+                        </Style>
+                    </Border.Style>
 
                     <Border.Effect>
                         <DropShadowEffect BlurRadius="14"
-                                          ShadowDepth="2"
-                                          Opacity="0.08"/>
+                          ShadowDepth="2"
+                          Opacity="0.08"/>
                     </Border.Effect>
 
-                    <TextBlock TextWrapping="Wrap"
-                               FontSize="14"
-                               LineHeight="26"
-                               Foreground="#4B5563"
-                               TextAlignment="Justify">
+                    <!-- ========================= -->
+                    <!-- INFO SECTION TITLE -->
+                    <!-- ========================= -->
 
-                        В 2023 году Министерством финансов Республики Крым был реализован конкурс-проект «Школьное инициативное бюджетирование».
+                    <Grid>
+                        <Button Content="✏"
+                                Width="26"
+                                Height="26"
+                                FontSize="14"
+                                FontWeight="Bold"
+                                HorizontalAlignment="Right"
+                                VerticalAlignment="Top"
+                                Cursor="Hand"
+                                BorderThickness="0"
+                                Background="Transparent"
+                                Foreground="Black"
+                                Focusable="False"
+                                IsTabStop="False"
+                                Panel.ZIndex="10"
+                                Command="{Binding EditDescriptionCommand}">
 
-                        Наша школа стала одной из школ республики, которые приняли участие в проекте.
+                            <Button.Style>
+                                <Style TargetType="Button">
 
-                        Учащиеся представили проект краеведческого музея «Память времён» и стали победителями конкурса.
+                                    <!-- По умолчанию скрыта -->
+                                    <Setter Property="Visibility"
+                                            Value="Collapsed"/>
 
-                        В рамках реализации проекта в школе готовится к открытию краеведческий музей. Установлено приобретённое оборудование, оформлена экспозиция истории школы, история села, а также раздел «Наши соотечественники — герои войны».
+                                    <Style.Triggers>
 
-                        Продолжается работа по оформлению экспозиций, посвящённых трудовым династиям села и другим важным страницам его истории.
+                                        <!-- Показываем только админу, когда НЕ редактируем -->
+                                        <MultiDataTrigger>
 
-                        Планируемая дата торжественного открытия музея — май 2024 года.
+                                            <MultiDataTrigger.Conditions>
 
-                        Музей «Память времён» направлен на сохранение и популяризацию исторического наследия наших односельчан, чьи достижения внесли значительный вклад в развитие школы и села.
-                        
-                        Целевая аудитория проекта: обучающиеся 1–11 классов, классные руководители, руководитель музея, родители и жители села.
-                        
-                        На сегодняшний день учителя и школьники активно используют музей для проведения мероприятий, уроков мужества, круглых столов и других образовательных событий.
-                    </TextBlock>
+                                                <Condition Binding="{Binding CanEdit}"
+                                                           Value="True"/>
 
+                                                <Condition Binding="{Binding IsEditing}"
+                                                           Value="False"/>
+
+                                            </MultiDataTrigger.Conditions>
+
+                                            <Setter Property="Visibility"
+                                                    Value="Visible"/>
+
+                                        </MultiDataTrigger>
+
+                                    </Style.Triggers>
+
+                                </Style>
+                            </Button.Style>
+
+
+                            <Button.Template>
+                                <ControlTemplate TargetType="Button">
+
+                                    <Border x:Name="Root"
+                                            Background="Transparent"
+                                            CornerRadius="6">
+
+                                        <ContentPresenter HorizontalAlignment="Center"
+                                                          VerticalAlignment="Center"/>
+
+                                    </Border>
+
+                                    <ControlTemplate.Triggers>
+
+                                        <Trigger Property="IsMouseOver" Value="True">
+                                            <Setter TargetName="Root"
+                                                    Property="Background"
+                                                    Value="#224A90E2"/>
+                                        </Trigger>
+
+                                        <Trigger Property="IsPressed" Value="True">
+                                            <Setter TargetName="Root"
+                                                    Property="Background"
+                                                    Value="#444A90E2"/>
+                                        </Trigger>
+
+                                    </ControlTemplate.Triggers>
+
+                                </ControlTemplate>
+                            </Button.Template>
+
+                        </Button>
+
+                        <Button Content="✔️"
+                                Width="26"
+                                Height="26"
+                                FontSize="16"
+                                FontWeight="Bold"
+                                HorizontalAlignment="Right"
+                                VerticalAlignment="Top"
+                                Margin="0,-2,30,0"
+                                Cursor="Hand"
+                                BorderThickness="0"
+                                Background="Transparent"
+                                Foreground="Green"
+                                Focusable="False"
+                                IsTabStop="False"
+                                Panel.ZIndex="10"
+                                Command="{Binding SaveDescriptionCommand}">
+
+                            <Button.Style>
+                                <Style TargetType="Button">
+
+                                    <!-- по умолчанию скрыто -->
+                                    <Setter Property="Visibility"
+                                            Value="Collapsed"/>
+
+                                    <Style.Triggers>
+
+                                        <!-- Показываем только админу в режиме редактирования -->
+                                        <MultiDataTrigger>
+
+                                            <MultiDataTrigger.Conditions>
+
+                                                <Condition Binding="{Binding CanEdit}"
+                                                           Value="True"/>
+
+                                                <Condition Binding="{Binding IsEditing}"
+                                                           Value="True"/>
+
+                                            </MultiDataTrigger.Conditions>
+
+                                            <Setter Property="Visibility"
+                                                    Value="Visible"/>
+
+                                        </MultiDataTrigger>
+
+                                    </Style.Triggers>
+
+                                </Style>
+                            </Button.Style>
+
+
+                            <Button.Template>
+                                <ControlTemplate TargetType="Button">
+
+                                    <Border x:Name="Root"
+                                            Background="Transparent"
+                                            CornerRadius="6">
+
+                                        <ContentPresenter HorizontalAlignment="Center"
+                                  VerticalAlignment="Center"/>
+
+                                    </Border>
+
+                                    <ControlTemplate.Triggers>
+
+                                        <Trigger Property="IsMouseOver" Value="True">
+
+                                            <Setter TargetName="Root"
+                                                    Property="Background"
+                                                    Value="#224A90E2"/>
+
+                                        </Trigger>
+
+                                        <Trigger Property="IsPressed" Value="True">
+
+                                            <Setter TargetName="Root"
+                                                    Property="Background"
+                                                    Value="#444A90E2"/>
+
+                                        </Trigger>
+
+                                    </ControlTemplate.Triggers>
+
+                                </ControlTemplate>
+                            </Button.Template>
+
+                        </Button>
+
+                        <Button Content="❌"
+                                Width="26"
+                                Height="26"
+                                FontSize="14"
+                                FontWeight="Bold"
+                                HorizontalAlignment="Right"
+                                VerticalAlignment="Top"
+                                Cursor="Hand"
+                                BorderThickness="0"
+                                Background="Transparent"
+                                Foreground="Red"
+                                Focusable="False"
+                                IsTabStop="False"
+                                Panel.ZIndex="10"
+                                Command="{Binding CancelDescriptionCommand}">
+
+                            <Button.Style>
+                                <Style TargetType="Button">
+
+                                    <!-- По умолчанию скрыта -->
+                                    <Setter Property="Visibility"
+                                            Value="Collapsed"/>
+
+                                    <Style.Triggers>
+
+                                        <!-- Показываем только админу во время редактирования -->
+                                        <MultiDataTrigger>
+
+                                            <MultiDataTrigger.Conditions>
+
+                                                <Condition Binding="{Binding CanEdit}"
+                                                           Value="True"/>
+
+                                                <Condition Binding="{Binding IsEditing}"
+                                                           Value="True"/>
+
+                                            </MultiDataTrigger.Conditions>
+
+                                            <Setter Property="Visibility"
+                                                    Value="Visible"/>
+
+                                        </MultiDataTrigger>
+
+                                    </Style.Triggers>
+
+                                </Style>
+                            </Button.Style>
+
+
+                            <Button.Template>
+                                <ControlTemplate TargetType="Button">
+
+                                    <Border x:Name="Root"
+                                            Background="Transparent"
+                                            CornerRadius="6">
+
+                                        <ContentPresenter HorizontalAlignment="Center"
+                                                          VerticalAlignment="Center"/>
+
+                                    </Border>
+
+                                    <ControlTemplate.Triggers>
+
+                                        <Trigger Property="IsMouseOver" Value="True">
+                                            <Setter TargetName="Root"
+                                                    Property="Background"
+                                                    Value="#224A90E2"/>
+                                        </Trigger>
+
+                                        <Trigger Property="IsPressed" Value="True">
+                                            <Setter TargetName="Root"
+                                                    Property="Background"
+                                                    Value="#444A90E2"/>
+                                        </Trigger>
+
+                                    </ControlTemplate.Triggers>
+
+                                </ControlTemplate>
+                            </Button.Template>
+
+                        </Button>
+
+                        <TextBlock Text="{Binding MuseumDescription}"
+                                    Margin="20"
+                                    TextWrapping="Wrap"
+                                    FontSize="14"
+                                    LineHeight="26"
+                                    Foreground="#4B5563"
+                                    TextAlignment="Justify"
+                                    Visibility="{Binding IsEditing,
+                                                         Converter={StaticResource 
+                                                         InverseBoolToVisibilityConverter}}"/>
+
+                        <RichTextBox Margin="15, 20, 15, 20"
+                                     FontSize="14"
+                                     Foreground="#4B5563"
+                                     Background="Transparent"
+                                     BorderThickness="0"
+                                     Padding="0"
+                                     VerticalScrollBarVisibility="Auto"
+                                     Visibility="{Binding IsEditing,
+                                     Converter={StaticResource BoolToVisibilityConverter}}">
+
+                            <FlowDocument>
+                                <Paragraph LineHeight="26"
+                                           TextAlignment="Justify">
+                                    <Run Text="{Binding MuseumDescription}"/>
+                                </Paragraph>
+                            </FlowDocument>
+
+                        </RichTextBox>
+
+                    </Grid>
                 </Border>
-
             </StackPanel>
 
         </Grid>

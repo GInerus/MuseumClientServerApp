@@ -121,6 +121,11 @@ namespace MuseumClient.Services
                 System.Diagnostics.Debug.WriteLine("TIMEOUT: " + ex);
                 return AuthResult.ServerUnavailable;
             }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine("UNEXPECTED ERROR: " + ex);
+                return AuthResult.ServerUnavailable;
+            }
         }
 
         public void Logout()
@@ -129,6 +134,12 @@ namespace MuseumClient.Services
             _userType = null;
 
             AuthChanged?.Invoke();
+        }
+
+        public void UpdateServerConfig(ServerConfig config)
+        {
+            _serverConfig.LocalUrl = config.LocalUrl;
+            _serverConfig.RemoteUrl = config.RemoteUrl;
         }
     }
 }

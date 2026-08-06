@@ -1,5 +1,6 @@
 ﻿using System.IO;
 using System.Text.Json;
+using System.Text.Json.Nodes;
 
 namespace MuseumClient.Services
 {
@@ -19,6 +20,25 @@ namespace MuseumClient.Services
                 LocalUrl = root.GetProperty("Server").GetProperty("LocalUrl").GetString(),
                 RemoteUrl = root.GetProperty("Server").GetProperty("RemoteUrl").GetString()
             };
+        }
+
+        public void Save()
+        {
+            var root = new JsonObject
+            {
+                ["Server"] = new JsonObject
+                {
+                    ["LocalUrl"] = Server.LocalUrl,
+                    ["RemoteUrl"] = Server.RemoteUrl
+                }
+            };
+
+            File.WriteAllText(
+                "AppSettings.json",
+                root.ToJsonString(new JsonSerializerOptions
+                {
+                    WriteIndented = true
+                }));
         }
     }
 

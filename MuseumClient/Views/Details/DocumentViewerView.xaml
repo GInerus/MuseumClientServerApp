@@ -35,24 +35,43 @@
                            FontWeight="Bold"
                            Foreground="#1F2937"/>
 
-                    <TextBlock Text="Статья музея"
-                           FontSize="13"
-                           Foreground="#6B7280"/>
+                    <TextBlock Text="{Binding Subtitle}"
+                               FontSize="13"
+                               Foreground="#6B7280"
+                               Visibility="{Binding ShowSubtitle, Converter={StaticResource BoolToVisibilityConverter}}"/>
 
                 </StackPanel>
 
-                <Button Grid.Column="1"
-                        Content="Скачать"
-                        Command="{Binding DownloadCommand}"
-                        Width="120"
-                        Height="36"
-                        Background="#4A90E2"
-                        Foreground="White"
-                        BorderThickness="0"
-                        FontSize="14"
-                        FontWeight="SemiBold"
-                        FontFamily="Segoe UI"
-                        Cursor="Hand"/>
+                <StackPanel Grid.Column="1"
+                            Orientation="Horizontal"
+                            HorizontalAlignment="Right">
+
+                    <Button Content="🖨 Печать"
+                            Click="PrintButton_Click"
+                            Width="120"
+                            Height="36"
+                            Background="#6B7280"
+                            Foreground="White"
+                            BorderThickness="0"
+                            FontSize="14"
+                            FontWeight="SemiBold"
+                            FontFamily="Segoe UI"
+                            Cursor="Hand"
+                            Visibility="{Binding IsHtml, Converter={StaticResource BoolToVisibilityConverter}}"
+                            Margin="0,0,10,0"/>
+                    
+                    <Button Content="Скачать"
+                            Command="{Binding DownloadCommand}"
+                            Width="120"
+                            Height="36"
+                            Background="#4A90E2"
+                            Foreground="White"
+                            BorderThickness="0"
+                            FontSize="14"
+                            FontWeight="SemiBold"
+                            FontFamily="Segoe UI"
+                            Cursor="Hand"/>
+                </StackPanel>
 
             </Grid>
 
@@ -121,10 +140,10 @@
 
         <!-- OVERLAY ЗАГРУЗКИ -->
         <Grid Grid.RowSpan="2"
-      Panel.ZIndex="999"
-      Background="#66000000"
-      Visibility="{Binding IsLoading,
-                           Converter={StaticResource BoolToVisibilityConverter}}">
+              Panel.ZIndex="999"
+              Background="#66000000"
+              Visibility="{Binding IsLoading,
+                                   Converter={StaticResource BoolToVisibilityConverter}}">
 
             <Border Width="260"
             Height="140"

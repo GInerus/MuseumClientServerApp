@@ -12,15 +12,18 @@ namespace MuseumServer.Controllers
         private readonly DepartmentService _service;
         private readonly IFileService _fileService;
         private readonly ImageProcessor _imageProcessor;
+        private readonly LoggingService _logging;
 
         public DepartmentController(
             DepartmentService service,
             IFileService fileService,
-            ImageProcessor imageProcessor)
+            ImageProcessor imageProcessor,
+            LoggingService logging)
         {
             _service = service;
             _fileService = fileService;
             _imageProcessor = imageProcessor;
+            _logging = logging;
         }
 
         // GET: api/department/count
@@ -99,6 +102,8 @@ namespace MuseumServer.Controllers
 
             var dept = await _service.CreateAsync(request, imageName);
 
+            await _logging.LogAsync("admin", "Create", "Department", dept.Name);
+
             return Ok(new
             {
                 status = "ok",
@@ -113,6 +118,8 @@ namespace MuseumServer.Controllers
             [FromHeader] string token,
             int id)
         {
+            var existing = await _service.GetByIdAsync(id);
+
             var deleted = await _service.DeleteAsync(id);
 
             if (!deleted)
@@ -121,6 +128,8 @@ namespace MuseumServer.Controllers
                     status = "error",
                     message = "Department not found"
                 });
+
+            await _logging.LogAsync("admin", "Delete", "Department", existing?.Name);
 
             return Ok(new { status = "ok" });
         }
@@ -141,6 +150,10 @@ namespace MuseumServer.Controllers
                     status = "error",
                     message = "Department not found"
                 });
+
+            var dept = await _service.GetByIdAsync(id);
+
+            await _logging.LogAsync("admin", "Update", "Department", dept?.Name);
 
             return Ok(new { status = "ok" });
         }

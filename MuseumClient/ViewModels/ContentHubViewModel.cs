@@ -61,6 +61,8 @@ namespace MuseumClient.ViewModels
         public DepartmentsViewModel DepartmentsVM { get; }
         public MediaImagesViewModel MediaImagesVM { get; }
         public MediaVideosViewModel MediaVideosVM { get; }
+        public SettingsViewModel SettingsVM { get; }
+        public ReportsViewModel ReportsVM { get; }
 
         private readonly MainViewModel _mainVM;
 
@@ -72,6 +74,8 @@ namespace MuseumClient.ViewModels
         public RelayCommand ShowIllustrationsCommand { get; }
         public RelayCommand ShowVideosCommand { get; }
         public RelayCommand ExitCommand { get; }
+        public RelayCommand ShowSettingsCommand { get; }
+
 
 
         public ContentHubViewModel(MainViewModel mainVM)
@@ -85,6 +89,8 @@ namespace MuseumClient.ViewModels
             DepartmentsVM = new DepartmentsViewModel(this);
             MediaImagesVM = new MediaImagesViewModel(this);
             MediaVideosVM = new MediaVideosViewModel(this);
+            ReportsVM = new ReportsViewModel(this);
+            SettingsVM = new SettingsViewModel(this);
 
             // Команды
             ShowAboutMuseumCommand = new RelayCommand(async _ =>
@@ -129,6 +135,14 @@ namespace MuseumClient.ViewModels
                 AuthService.Instance().Logout();
 
                 _mainVM.ShowLoginView();
+            });
+
+            ShowSettingsCommand = new RelayCommand(async _ =>
+            {
+                SelectedMenu = "Settings";
+                CurrentTabView = SettingsVM;
+
+                await SettingsVM.LoadServerVersionAsync();
             });
 
             // Стартовая вкладка
@@ -222,6 +236,16 @@ namespace MuseumClient.ViewModels
         public void ShowCreateVideo()
         {
             CurrentTabView = new AddVideoViewModel(this);
+        }
+
+        public void ShowGuide()
+        {
+            CurrentTabView = DocumentViewerViewModel.CreateForGuide();
+        }
+
+        public void ShowReportPdf(byte[] pdfBytes, string title)
+        {
+            CurrentTabView = DocumentViewerViewModel.CreateForReport(pdfBytes, title);
         }
 
         public event PropertyChangedEventHandler? PropertyChanged;

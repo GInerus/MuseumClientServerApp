@@ -1,4 +1,5 @@
-﻿using System;
+﻿using MuseumClient.ViewModels;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -23,6 +24,15 @@ namespace MuseumClient.Views
         public LoginView()
         {
             InitializeComponent();
+        }
+
+
+        private void ServerSettingsPopup_Closed(object sender, EventArgs e)
+        {
+            if (DataContext is LoginViewModel vm)
+            {
+                vm.ShowServerSettings = false;
+            }
         }
     }
 }

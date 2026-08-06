@@ -10,6 +10,8 @@ namespace MuseumServer
     {
         public static void Main(string[] args)
         {
+            QuestPDF.Settings.License = QuestPDF.Infrastructure.LicenseType.Community;
+
             var builder = WebApplication.CreateBuilder(args);
 
             builder.WebHost.ConfigureKestrel(options =>
@@ -24,13 +26,19 @@ namespace MuseumServer
             // Add services
             builder.Services.AddSingleton<SessionService>();
             builder.Services.AddHostedService<SessionCleanupService>();
+            builder.Services.AddSingleton<BackupService>();
+            builder.Services.AddHostedService<BackupSchedulerService>();
+
             builder.Services.AddScoped<ExhibitService>();
             builder.Services.AddScoped<DocumentService>();
             builder.Services.AddScoped<MediaFileService>();
             builder.Services.AddScoped<DepartmentService>();
+            builder.Services.AddScoped<MuseumInfoService>();
             builder.Services.AddScoped<IFileService, FileService>();
             builder.Services.AddScoped<ImageProcessor>();
             builder.Services.AddScoped<VideoProcessor>();
+            builder.Services.AddSingleton<LoggingService>();
+            builder.Services.AddScoped<ReportService>();
 
             builder.Services.Configure<FormOptions>(options =>
             {

@@ -2,7 +2,7 @@
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:hc="https://handyorg.github.io/handycontrol"
-             xmlns:local="clr-namespace:MuseumClient.Helpers"
+             xmlns:local="clr-namespace:MuseumClient.Converters"
              StartupUri="Views/MainWindow.xaml">
 
     <Application.Resources>
@@ -19,9 +19,10 @@
 
             <!-- BoolToVisibilityConverter -->
             <local:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
+            <local:InverseBoolToVisibilityConverter x:Key="InverseBoolToVisibilityConverter"/>
 
             <local:EyeGlyphConverter x:Key="EyeGlyphConverter"/>
-            
+
         </ResourceDictionary>
 
     </Application.Resources>

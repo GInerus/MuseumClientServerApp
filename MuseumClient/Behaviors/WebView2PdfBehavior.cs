@@ -18,6 +18,7 @@ namespace MuseumClient.Behaviors
 
             _vm = AssociatedObject.DataContext as DocumentViewerViewModel;
 
+
             if (_vm != null)
             {
                 _vm.PropertyChanged += Vm_PropertyChanged;

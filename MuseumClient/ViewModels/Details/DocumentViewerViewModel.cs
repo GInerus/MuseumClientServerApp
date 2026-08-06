@@ -13,6 +13,16 @@ namespace MuseumClient.ViewModels.Details
 {
     public class DocumentViewerViewModel : INotifyPropertyChanged
     {
+        // Document — обычная статья из БД (Document/{id})
+        // Guide     — статический файл руководства (system/guide), без метаданных в БД
+        // Report    — уже сгенерированный локальный PDF-отчёт, без сетевого запроса на загрузку файла
+        private enum DocumentSource
+        {
+            Document,
+            Guide,
+            Report
+        }
+
         public event PropertyChangedEventHandler? PropertyChanged;
 
         private void OnPropertyChanged(string name)
@@ -20,6 +30,9 @@ namespace MuseumClient.ViewModels.Details
 
         private readonly ApiService _apiService;
         private readonly int _id;
+        private readonly DocumentSource _source;
+
+        private byte[]? _initialBytes;
 
         private string _fileType = "";
         public string FileType
@@ -91,6 +104,83 @@ namespace MuseumClient.ViewModels.Details
         public bool IsText => FileType?.ToLower() is "txt";
         public bool IsHtml => FileType?.ToLower() is "pdf" or "docx" or "md";
 
+        private string _title = "";
+        public string Title
+        {
+            get => _title;
+            set
+            {
+                _title = value;
+                OnPropertyChanged(nameof(Title));
+            }
+        }
+
+        public string Subtitle => "Статья музея";
+        public bool ShowSubtitle => _source == DocumentSource.Document;
+
+        private string? _htmlPath;
+        public string? HtmlPath
+        {
+            get => _htmlPath;
+            set
+            {
+                _htmlPath = value;
+                OnPropertyChanged(nameof(HtmlPath));
+            }
+        }
+
+        public RelayCommand DownloadCommand { get; }
+
+        // Обычный режим — статья из БД
+        public DocumentViewerViewModel(int id, string fileType)
+            : this(id, fileType, DocumentSource.Document)
+        {
+        }
+
+        private DocumentViewerViewModel(int id, string fileType, DocumentSource source)
+        {
+            _id = id;
+            _source = source;
+            FileType = fileType;
+
+            _apiService = new ApiService(
+                new ConfigService().Server,
+                AuthService.Instance()
+            );
+
+            DownloadCommand = new RelayCommand(async _ => await DownloadAsync());
+
+            if (_source != DocumentSource.Report)
+            {
+                _ = InitializeAsync();
+            }
+        }
+
+        // Второй режим — руководство пользователя (system/guide), без Document/{id}
+        public static DocumentViewerViewModel CreateForGuide()
+        {
+            var vm = new DocumentViewerViewModel(0, "pdf", DocumentSource.Guide)
+            {
+                Title = "Руководство пользователя"
+            };
+
+            return vm;
+        }
+
+        // Третий режим — уже сгенерированный локальный PDF-отчёт
+        public static DocumentViewerViewModel CreateForReport(byte[] pdfBytes, string title)
+        {
+            var vm = new DocumentViewerViewModel(0, "pdf", DocumentSource.Report)
+            {
+                Title = title,
+                _initialBytes = pdfBytes
+            };
+
+            _ = vm.InitializeAsync();
+
+            return vm;
+        }
+
         private async Task InitializeAsync()
         {
             try
@@ -98,7 +188,10 @@ namespace MuseumClient.ViewModels.Details
                 IsLoading = true;
                 Status = "Загрузка документа...";
 
-                await LoadMetadataAsync();
+                if (_source == DocumentSource.Document)
+                {
+                    await LoadMetadataAsync();
+                }
 
                 Status = "Загрузка содержимого...";
                 await LoadAsync();
@@ -115,43 +208,6 @@ namespace MuseumClient.ViewModels.Details
             }
         }
 
-        private string _title = "";
-        public string Title
-        {
-            get => _title;
-            set
-            {
-                _title = value;
-                OnPropertyChanged(nameof(Title));
-            }
-        }
-
-        private string? _htmlPath;
-        public string? HtmlPath
-        {
-            get => _htmlPath;
-            set
-            {
-                _htmlPath = value;
-                OnPropertyChanged(nameof(HtmlPath));
-            }
-        }
-
-        public DocumentViewerViewModel(int id, string fileType)
-        {
-            _id = id;
-            FileType = fileType;
-
-            _apiService = new ApiService(
-                new ConfigService().Server,
-                AuthService.Instance()
-            );
-
-            DownloadCommand = new RelayCommand(async _ => await DownloadAsync());
-
-            _ = InitializeAsync();
-        }
-
         private async Task LoadMetadataAsync()
         {
             var response = await _apiService.GetAsync<DocumentResponse>($"Document/{_id}");
@@ -163,11 +219,29 @@ namespace MuseumClient.ViewModels.Details
             }
         }
 
-        public RelayCommand DownloadCommand { get; }
+        // Отдельные временные имена файлов для гайда, чтобы не пересекаться
+        // с реальными Document Id (у гайда _id всегда 0)
+        private string TempBaseName => _source == DocumentSource.Guide
+            ? "user_guide"
+            : _id.ToString();
 
         private async Task LoadAsync()
         {
-            var bytes = await _apiService.GetBytesAsync($"Document/stream/{_id}");
+            // Report: файл уже лежит локально (во временной папке), сеть не нужна
+            byte[] bytes;
+
+            if (_source == DocumentSource.Report)
+            {
+                bytes = _initialBytes!;
+            }
+            else
+            {
+                var streamEndpoint = _source == DocumentSource.Guide
+                    ? "system/guide"
+                    : $"Document/stream/{_id}";
+
+                bytes = await _apiService.GetBytesAsync(streamEndpoint);
+            }
 
             _rawFile = bytes;
 
@@ -181,7 +255,7 @@ namespace MuseumClient.ViewModels.Details
                         var markdown = Encoding.UTF8.GetString(bytes);
                         var html = MarkdownConverter.ConvertToHtml(markdown);
 
-                        var htmlPath = Path.Combine(Path.GetTempPath(), $"{_id}_md.html");
+                        var htmlPath = Path.Combine(Path.GetTempPath(), $"{TempBaseName}_md.html");
                         File.WriteAllText(htmlPath, html, Encoding.UTF8);
 
                         HtmlPath = new Uri(htmlPath).AbsoluteUri;
@@ -189,20 +263,24 @@ namespace MuseumClient.ViewModels.Details
                     }
                 case "pdf":
                     {
-                        var path = Path.Combine(Path.GetTempPath(), $"{_id}.pdf");
-                        File.WriteAllBytes(path, _rawFile!);
+                        var path = Path.Combine(
+                            Path.GetTempPath(),
+                            $"{TempBaseName}.pdf");
+
+                        File.WriteAllBytes(path, _rawFile);
 
                         LocalPdfPath = path;
+
                         break;
                     }
                 case "docx":
                     {
-                        var path = Path.Combine(Path.GetTempPath(), $"{_id}.docx");
+                        var path = Path.Combine(Path.GetTempPath(), $"{TempBaseName}.docx");
                         File.WriteAllBytes(path, _rawFile!);
 
                         var html = DocxToHtmlConverter.Convert(path);
 
-                        var htmlPath = Path.Combine(Path.GetTempPath(), $"{_id}.html");
+                        var htmlPath = Path.Combine(Path.GetTempPath(), $"{TempBaseName}.html");
                         File.WriteAllText(htmlPath, html, Encoding.UTF8);
 
                         HtmlPath = new Uri(htmlPath).AbsoluteUri;
@@ -214,6 +292,7 @@ namespace MuseumClient.ViewModels.Details
                     break;
             }
         }
+
         private async Task DownloadAsync()
         {
             string extension = FileType?.ToLower() switch

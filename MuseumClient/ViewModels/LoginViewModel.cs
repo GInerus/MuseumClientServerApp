@@ -12,8 +12,10 @@ namespace MuseumClient.ViewModels
     {
         private readonly MainViewModel _mainVM;
         private readonly AuthService _authService;
+        private readonly ConfigService _configService;
 
         public RelayCommand RegisterCommand { get; }
+        public RelayCommand SaveServerSettingsCommand { get; }
 
         private string _userPassword;
         public string UserPassword
@@ -97,8 +99,8 @@ namespace MuseumClient.ViewModels
             SelectedUserType = UserTypes.First();
 
             // Инициализация Singleton AuthService с конфигом
-            var config = new Services.ConfigService().Server;
-            AuthService.Instance(config);
+            _configService = new ConfigService();
+            AuthService.Instance(_configService.Server);
 
             TogglePasswordVisibilityCommand = new RelayCommand(async _ =>
             {
@@ -131,8 +133,75 @@ namespace MuseumClient.ViewModels
                         break;
                 }
             });
+
+            SaveServerSettingsCommand = new RelayCommand(async _ =>
+            {
+                if (!Uri.TryCreate(LocalUrl, UriKind.Absolute, out var localUri) ||
+                    (localUri.Scheme != Uri.UriSchemeHttp && localUri.Scheme != Uri.UriSchemeHttps))
+                {
+                    InfoService.Show("Некорректный адрес локального сервера.");
+                    return;
+                }
+
+                if (!Uri.TryCreate(RemoteUrl, UriKind.Absolute, out var remoteUri) ||
+                    (remoteUri.Scheme != Uri.UriSchemeHttp && remoteUri.Scheme != Uri.UriSchemeHttps))
+                {
+                    InfoService.Show("Некорректный адрес удалённого сервера.");
+                    return;
+                }
+
+                _configService.Save();
+
+                AuthService.Instance().UpdateServerConfig(_configService.Server);
+
+                InfoService.Show("Адреса серверов сохранены.");
+
+                await Task.CompletedTask;
+            });
+
+            ToggleServerSettingsCommand = new RelayCommand(async _ =>
+            {
+                ShowServerSettings = !ShowServerSettings;
+                await Task.CompletedTask;
+            });
         }
 
         public event PropertyChangedEventHandler? PropertyChanged;
+
+        public string LocalUrl
+        {
+            get => _configService.Server.LocalUrl;
+            set
+            {
+                _configService.Server.LocalUrl = value;
+                PropertyChanged?.Invoke(this,
+                    new PropertyChangedEventArgs(nameof(LocalUrl)));
+            }
+        }
+
+        public string RemoteUrl
+        {
+            get => _configService.Server.RemoteUrl;
+            set
+            {
+                _configService.Server.RemoteUrl = value;
+                PropertyChanged?.Invoke(this,
+                    new PropertyChangedEventArgs(nameof(RemoteUrl)));
+            }
+        }
+
+        private bool _showServerSettings;
+        public bool ShowServerSettings
+        {
+            get => _showServerSettings;
+            set
+            {
+                _showServerSettings = value;
+                PropertyChanged?.Invoke(this,
+                    new PropertyChangedEventArgs(nameof(ShowServerSettings)));
+            }
+        }
+
+        public RelayCommand ToggleServerSettingsCommand { get; }
     }
 }

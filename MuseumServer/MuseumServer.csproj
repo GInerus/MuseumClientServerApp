@@ -40,4 +40,20 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>
+
+  <!-- Не копировать пользовательские файлы при публикации -->
+  <ItemGroup>
+  	<Content Remove="wwwroot\documents\**\*" />
+  	<Content Remove="wwwroot\exhibits\**\*" />
+  	<Content Remove="wwwroot\media\**\*" />
+  	<Content Remove="wwwroot\departments\**\*" />
+  </ItemGroup>
+     
+  <!-- Создать пустые папки при публикации -->
+  <Target Name="CreateEmptyWwwrootFolders" AfterTargets="Publish">
+  	<MakeDir Directories="$(PublishDir)wwwroot\documents;
+                           $(PublishDir)wwwroot\exhibits;
+                           $(PublishDir)wwwroot\media;
+                           $(PublishDir)wwwroot\departments" />
+  </Target>
 </Project>

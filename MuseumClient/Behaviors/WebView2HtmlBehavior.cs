@@ -1,5 +1,6 @@
 ﻿using Microsoft.Web.WebView2.Wpf;
 using Microsoft.Xaml.Behaviors;
+using MuseumClient.Services;
 using System;
 using System.Windows;
 
@@ -24,7 +25,8 @@ namespace MuseumClient.Behaviors
         {
             base.OnAttached();
 
-            await AssociatedObject.EnsureCoreWebView2Async();
+            var environment = await WebView2EnvironmentService.CreateAsync();
+            await AssociatedObject.EnsureCoreWebView2Async(environment);
 
             // если путь уже был установлен до инициализации
             Navigate();

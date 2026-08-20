@@ -1,5 +1,6 @@
-﻿using Microsoft.Xaml.Behaviors;
-using Microsoft.Web.WebView2.Wpf;
+﻿using Microsoft.Web.WebView2.Wpf;
+using Microsoft.Xaml.Behaviors;
+using MuseumClient.Services;
 using MuseumClient.ViewModels.Details;
 using System;
 using System.ComponentModel;
@@ -14,7 +15,8 @@ namespace MuseumClient.Behaviors
         {
             base.OnAttached();
 
-            await AssociatedObject.EnsureCoreWebView2Async();
+            var environment = await WebView2EnvironmentService.CreateAsync();
+            await AssociatedObject.EnsureCoreWebView2Async(environment);
 
             _vm = AssociatedObject.DataContext as DocumentViewerViewModel;
 

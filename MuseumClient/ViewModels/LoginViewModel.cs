@@ -150,11 +150,26 @@ namespace MuseumClient.ViewModels
                     return;
                 }
 
-                _configService.Save();
+                if (_configService.Save())
+                {
+                    AuthService.Instance().UpdateServerConfig(_configService.Server);
 
-                AuthService.Instance().UpdateServerConfig(_configService.Server);
+                    InfoService.Show("Адреса серверов сохранены.");
+                }
+                else
+                {
+                    try
+                    {
+                        _configService.SaveWithAdministrator();
 
-                InfoService.Show("Адреса серверов сохранены.");
+                        InfoService.Show(
+                            "Для сохранения настроек необходимо подтвердить запрос администратора.");
+                    }
+                    catch (System.ComponentModel.Win32Exception)
+                    {
+                        InfoService.Show("Сохранение отменено.");
+                    }
+                }
 
                 await Task.CompletedTask;
             });

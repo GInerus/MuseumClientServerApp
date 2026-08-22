@@ -2,6 +2,7 @@
 using System;
 using System.Net.Http;
 using System.Net.Http.Json;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace MuseumClient.Services
@@ -26,19 +27,26 @@ namespace MuseumClient.Services
         }
 
         private readonly ServerConfig _serverConfig;
-        private readonly HttpClient _client;
 
         private string _token;
         private string _baseUrl;
         private string _userType;
 
+        private readonly HttpClient _client;
+
         private AuthService(ServerConfig config)
         {
             _serverConfig = config;
 
-            _client = new HttpClient
+            var handler = new HttpClientHandler
             {
-                Timeout = TimeSpan.FromSeconds(2)
+                ServerCertificateCustomValidationCallback =
+                    HttpClientHandler.DangerousAcceptAnyServerCertificateValidator
+            };
+
+            _client = new HttpClient(handler)
+            {
+                Timeout = TimeSpan.FromSeconds(30)  // ← было 2
             };
         }
 
@@ -54,9 +62,19 @@ namespace MuseumClient.Services
         {
             try
             {
-                var localTestUrl = $"{_serverConfig.LocalUrl}/api/health";
+                // Отдельный клиент с коротким таймаутом для проверки локалки
+                using var localHandler = new HttpClientHandler
+                {
+                    ServerCertificateCustomValidationCallback =
+                        HttpClientHandler.DangerousAcceptAnyServerCertificateValidator
+                };
+                using var localClient = new HttpClient(localHandler)
+                {
+                    Timeout = TimeSpan.FromSeconds(3)  // ← короткий таймаут, чтобы не висеть
+                };
 
-                var response = await _client.GetAsync(localTestUrl);
+                var localTestUrl = $"{_serverConfig.LocalUrl}/api/health";
+                var response = await localClient.GetAsync(localTestUrl);
 
                 System.Diagnostics.Debug.WriteLine("LOCAL TEST: " + localTestUrl);
 
@@ -69,7 +87,6 @@ namespace MuseumClient.Services
             }
 
             System.Diagnostics.Debug.WriteLine("USING REMOTE: " + _serverConfig.RemoteUrl);
-
             return _serverConfig.RemoteUrl;
         }
 
@@ -97,15 +114,14 @@ namespace MuseumClient.Services
                 if (!response.IsSuccessStatusCode)
                     return AuthResult.InvalidCredentials;
 
-                var json = await response.Content.ReadFromJsonAsync<UserSession>();
+                // ИЗМЕНЕНО: парсим из уже прочитанной строки, а не из потока повторно
+                var json = System.Text.Json.JsonSerializer.Deserialize<UserSession>(body);
 
                 if (json?.status == "ok")
                 {
                     _token = json.token;
                     _userType = json.userType;
-
                     AuthChanged?.Invoke();
-
                     return AuthResult.Success;
                 }
 

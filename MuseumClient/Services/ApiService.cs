@@ -18,7 +18,10 @@ namespace MuseumClient.Services
         HttpClientHandler.DangerousAcceptAnyServerCertificateValidator
             };
 
-            _client = new HttpClient(handler);
+            _client = new HttpClient(handler)
+            {
+                Timeout = TimeSpan.FromSeconds(30)
+            };
         }
 
         private void ApplyHeaders()

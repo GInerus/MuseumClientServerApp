@@ -44,6 +44,28 @@ namespace MuseumClient.ViewModels
             }
         }
 
+        private bool _isLoading;
+        public bool IsLoading
+        {
+            get => _isLoading;
+            set
+            {
+                _isLoading = value;
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(IsLoading)));
+            }
+        }
+
+        private string _statusMessage;
+        public string StatusMessage
+        {
+            get => _statusMessage;
+            set
+            {
+                _statusMessage = value;
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(StatusMessage)));
+            }
+        }
+
         private bool _isPasswordVisible;
         public bool IsPasswordVisible
         {
@@ -110,27 +132,43 @@ namespace MuseumClient.ViewModels
 
             RegisterCommand = new RelayCommand(async _ =>
             {
-                var result = await AuthService.Instance().RegisterAsync(
-                    SelectedUserType.Value,
-                    SelectedUserType.Value == "guest" ? " " : UserPassword);
+                IsLoading = true;
+                StatusMessage = "Подключение к серверу...";
+                ErrorMessage = string.Empty;
 
-                switch (result)
+                try
                 {
-                    case AuthResult.Success:
+                    var result = await AuthService.Instance().RegisterAsync(
+                        SelectedUserType.Value,
+                        SelectedUserType.Value == "guest" ? " " : UserPassword);
 
-                        ErrorMessage = "";
-                        _mainVM.ShowContentHubView();
-                        break;
+                    switch (result)
+                    {
+                        case AuthResult.Success:
+                            StatusMessage = "Авторизация успешна!";
+                            ErrorMessage = "";
+                            _mainVM.ShowContentHubView();
+                            break;
 
-                    case AuthResult.InvalidCredentials:
+                        case AuthResult.InvalidCredentials:
+                            ErrorMessage = "Неверный пароль.";
+                            StatusMessage = "";
+                            break;
 
-                        ErrorMessage = "Неверный пароль.";
-                        break;
-
-                    case AuthResult.ServerUnavailable:
-
-                        ErrorMessage = "Нет доступа к серверу.";
-                        break;
+                        case AuthResult.ServerUnavailable:
+                            ErrorMessage = "Нет доступа к серверу.";
+                            StatusMessage = "";
+                            break;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    ErrorMessage = "Ошибка: " + ex.Message;
+                    StatusMessage = "";
+                }
+                finally
+                {
+                    IsLoading = false;
                 }
             });
 
